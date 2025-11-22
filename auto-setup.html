@@ -1,76 +1,85 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <title>Auto Setup - Dukaan Manager</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auto Setup - Dukaan Manager</title>
 </head>
-<body>
-  <h3>Auto Setup</h3>
-  <p>Paste your firebaseConfig into the <code>firebaseConfig</code> variable below, then click "Run Auto Setup".</p>
+<body style="font-family:Arial;padding:20px">
 
-  <textarea id="cfg" style="width:100%;height:160px;">const firebaseConfig = {
-  "apiKey": "AIzaSyAomDsqeLOrXvnudqUsudnZWOphuqM0bvY",
-  "authDomain": "shopkeeper-99756.firebaseapp.com",
-  "projectId": "shopkeeper-99756",
-  "storageBucket": "shopkeeper-99756.firebasestorage.app",
-  "messagingSenderId": "786338847396",
-  "appId": "1:786338847396:web:c6e042952145780f8aa431",
-  "measurementId": "G-PCE1MM86YE"
-};</textarea><br/>
+<h2>Auto Setup Tool</h2>
+<p>👇 नीचे केवल अपना FirebaseConfig <b>JSON format</b> में paste करें।<br>
+(कोई <b>const</b> या <b>variable name</b> नहीं — सिर्फ JSON object)</p>
 
-  <button id="run">Run Auto Setup</button>
-  <pre id="out" style="background:#f4f4f4;padding:8px;"></pre>
+<textarea id="cfg" style="width:100%;height:180px;font-size:14px;">
+{
+  "apiKey": "",
+  "authDomain": "",
+  "projectId": "",
+  "storageBucket": "",
+  "messagingSenderId": "",
+  "appId": "",
+  "measurementId": ""
+}
+</textarea><br><br>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<button id="run" style="padding:10px 20px;font-size:16px;background:#1976D2;color:white;border:none;border-radius:6px;">Run Auto Setup</button>
 
-  <script>
-  // Main handler — keeps logic inside one script tag (no broken nested tags)
-  document.getElementById('run').addEventListener('click', async function(){
-    try{
-      const cfgText = document.getElementById('cfg').value;
-      const cfg = eval("(" + cfgText + ")");
-      // avoid double-init
-      if (!firebase.apps.length) {
-        firebase.initializeApp(cfg);
-      }
-      const db = firebase.firestore();
-      const ownerUid = 'AdXfUF6kBzf0FagiQQdBreji1MP2';
-      const shopId = 'SHOP001';
+<pre id="out" style="background:#f4f4f4;padding:10px;margin-top:15px;white-space:pre-wrap;"></pre>
 
-      await db.collection('shopUsers').doc(ownerUid).set({
-        shopId: shopId,
-        role:'owner',
-        phone:'9999999999',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
-      await db.collection('shops').doc(shopId).set({
-        shopId: shopId,
-        name:'श्री राधा जनरल स्टोर',
-        ownerUid: ownerUid,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
+<script>
+document.getElementById('run').onclick = async function () {
+    let out = document.getElementById('out');
+    out.textContent = "Processing...";
 
-      document.getElementById('out').innerText = 'Shop and shopUser created. Now run seed.html to add items.';
-    }catch(e){
-      document.getElementById('out').innerText = 'Error: '+ (e && e.message ? e.message : e);
-      console.error(e);
+    try {
+        let text = document.getElementById('cfg').value.trim();
+
+        // Remove accidental "const ..." wrappers
+        if (text.startsWith("const")) {
+            text = text.substring(text.indexOf("{"));
+        }
+
+        // Remove trailing semicolon if present
+        if (text.endsWith(";")) text = text.slice(0, -1);
+
+        // Parse firebase config as JSON
+        let config = JSON.parse(text);
+
+        // Init Firebase
+        firebase.initializeApp(config);
+        const db = firebase.firestore();
+
+        const ownerUid = "AdXfUF6kBzf0FagiQQdBreji1MP2";  // YOUR UID
+        const shopId = "SHOP001";
+
+        // Create shopUsers mapping
+        await db.collection("shopUsers").doc(ownerUid).set({
+            shopId: shopId,
+            role: "owner",
+            phone: "9999999999",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Create shop document
+        await db.collection("shops").doc(shopId).set({
+            shopId: shopId,
+            name: "श्री राधा जनरल स्टोर",
+            ownerUid: ownerUid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        out.textContent = "✔ SHOP001 created\n✔ shopUsers mapping created\n\nNow open SEED page to import 50 items.";
+
+    } catch (e) {
+        out.textContent = "❌ ERROR: " + e.message;
     }
-  });
-
-  // Auto-run after DOM ready — wait a little to ensure button exists
-  window.addEventListener('DOMContentLoaded', function(){
-    // small delay so remote script loads and button available
-    setTimeout(function(){
-      try {
-        var btn = document.getElementById('run');
-        if (btn) btn.click();
-      } catch(e) { console.warn('auto-run failed', e); }
-    }, 900);
-  });
-  </script>
+};
+</script>
 </body>
 </html>
