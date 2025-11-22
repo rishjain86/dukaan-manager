@@ -361,59 +361,73 @@ function getCategoryIcon(category) {
   }
 
   /************* Save Item (add/update, NO photo upload) *************/
-  async function saveItem() {
-    if (!shopId) return;
+  <!-- REPLACE THE ENTIRE saveItem() FUNCTION WITH THIS -->
+<script>
+async function saveItem() {
+  if (!shopId) return;
 
-    const id   = document.getElementById("item-id").value;
-    const name = document.getElementById("item-name").value.trim();
-    const price = Number(document.getElementById("item-price").value || 0);
-    const stock = Number(document.getElementById("item-stock").value || 0);
-    const unit  = document.getElementById("item-unit").value.trim();
-    const category = document.getElementById("item-category").value.trim();
-    const discount = Number(document.getElementById("item-discount").value) || 0;
-    const offerPrice = Number(document.getElementById("item-offerprice").value) || 0;
-    if (!name) {
-      alert("कृपया नाम भरें");
-      return;
-    }
+  const id = document.getElementById("item-id").value;
+  const name = document.getElementById("item-name").value.trim();
+  const price = Number(document.getElementById("item-price").value) || 0;
+  const stock = Number(document.getElementById("item-stock").value) || 0;
+  const unit = document.getElementById("item-unit").value.trim();
+  const category = document.getElementById("item-category").value.trim();
 
-    const colRef = db.collection("shops").doc(shopId).collection("items");
-    let docRef;
+  // NEW: discount and offer price (will fallback to 0 / price)
+  const discount = Number(document.getElementById("item-discount").value) || 0;
+  const offerPrice = Number(document.getElementById("item-offerprice").value) || 0;
+
+  if (!name) {
+    alert("कृपया नाम भरें");
+    return;
+  }
+
+  const colRef = db.collection("shops").doc(shopId).collection("items");
+  let docRef;
+
+  if (id) {
+    docRef = colRef.doc(id);
+  } else {
+    docRef = colRef.doc(); // new id
+  }
+
+  try {
+    setStatus("Saving item...", "secondary");
+
+    const itemData = {
+      name,
+      price,
+      stock,
+      unit,
+      category,
+      discountPercent: discount,
+      offerPrice: (offerPrice && offerPrice > 0) ? offerPrice : price,
+      minStock: 5,
+      status: "active",
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
     if (id) {
-      docRef = colRef.doc(id);
+      // update existing
+      await docRef.update(itemData);
     } else {
-      docRef = colRef.doc(); // new id
+      // create new (add createdAt)
+      await docRef.set(Object.assign({}, itemData, {
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }));
     }
 
-    try {
-      setStatus("Saving item...", "secondary");
+    setStatus("Item saved.", "success");
+    bootstrap.Modal.getInstance(document.getElementById("itemModal")).hide();
+    // reload items (listener should auto-update, but call load to be safe)
+    loadItems && typeof loadItems === "function" && loadItems();
 
-      const itemData = {
-  name,
-  price,
-  stock,
-  unit,
-  category,
-  discountPercent: discount,
-  offerPrice: offerPrice || price,
-  minStock: 5,
-  status: "active"
-};
-
-      if (id) {
-        await docRef.update(itemData);
-      } else {
-        await docRef.set(itemData);
-      }
-
-      setStatus("Item saved.", "success");
-      bootstrap.Modal.getInstance(document.getElementById("itemModal")).hide();
-    } catch (err) {
-      console.error(err);
-      setStatus("Error saving item: " + err.message, "danger");
-    }
+  } catch (err) {
+    console.error(err);
+    setStatus("Error saving item: " + err.message, "danger");
   }
+}
+</script>
 
   /************* Delete *************/
   function deleteItem(id) {
@@ -444,6 +458,7 @@ function getCategoryIcon(category) {
 
 </body>
 </html>
+
 
 
 
