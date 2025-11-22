@@ -331,7 +331,9 @@ function getCategoryIcon(category) {
     document.getElementById("item-stock").value = "";
     document.getElementById("item-unit").value = "";
     document.getElementById("item-category").value = "";
-
+    document.getElementById("item-discount").value = "";
+    document.getElementById("item-offerprice").value = "";
+    
     new bootstrap.Modal(document.getElementById("itemModal")).show();
   }
 
@@ -348,7 +350,8 @@ function getCategoryIcon(category) {
         document.getElementById("item-stock").value = i.stock ?? "";
         document.getElementById("item-unit").value = i.unit || "";
         document.getElementById("item-category").value = i.category || "";
-
+        document.getElementById("item-discount").value = i.discountPercent ?? 0;
+        document.getElementById("item-offerprice").value = i.offerPrice ?? i.price ?? 0;
         new bootstrap.Modal(document.getElementById("itemModal")).show();
       })
       .catch(err => {
@@ -438,6 +441,7 @@ function getCategoryIcon(category) {
 
 </body>
 </html>
+
 
 
 
