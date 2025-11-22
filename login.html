@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dukaan Login</title>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f5f5;
+            padding: 40px;
+            text-align: center;
+        }
+        .card {
+            max-width: 350px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        }
+        input {
+            width: 95%;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 8px;
+        }
+        #recaptcha-container {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>Login to Dukaan Manager</h2>
+
+        <input id="phone" type="tel" placeholder="Enter phone (10 digits)">
+        <div id="recaptcha-container"></div>
+        <button onclick="sendOTP()">Send OTP</button>
+
+        <input id="otp" type="text" placeholder="Enter OTP">
+        <button onclick="verifyOTP()">Verify OTP</button>
+
+        <p id="msg" style="color:red; margin-top:10px;"></p>
+    </div>
+
+    <script>
+        // ---------- Your Firebase Config (AUTO INSERTED IN PACKAGE) ----------
+        const firebaseConfig = {
+          apiKey: "AIzaSyAomDsqeLOrXvnudqUsudnZWOphuqM0bvY",
+          authDomain: "shopkeeper-99756.firebaseapp.com",
+          projectId: "shopkeeper-99756",
+          storageBucket: "shopkeeper-99756.firebasestorage.app",
+          messagingSenderId: "786338847396",
+          appId: "1:786338847396:web:c6e042952145780f8aa431",
+          measurementId: "G-PCE1MM86YE"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+            size: 'normal',
+            callback: function() {
+                console.log("Recaptcha solved");
+            }
+        });
+
+        function sendOTP() {
+            let phone = document.getElementById("phone").value;
+            if (phone.length !== 10) {
+                document.getElementById("msg").innerText = "Enter valid phone";
+                return;
+            }
+
+            let fullPhone = "+91" + phone;
+
+            auth.signInWithPhoneNumber(fullPhone, window.recaptchaVerifier)
+                .then(function(confirmation) {
+                    window.confirmationResult = confirmation;
+                    document.getElementById("msg").innerText = "OTP sent!";
+                })
+                .catch(function(error) {
+                    document.getElementById("msg").innerText = "Error: " + error.message;
+                });
+        }
+
+        function verifyOTP() {
+            let otp = document.getElementById("otp").value;
+
+            window.confirmationResult.confirm(otp)
+                .then(function(result) {
+                    let user = result.user;
+                    localStorage.setItem("uid", user.uid);
+
+                    // Redirect to dashboard
+                    window.location.href = "dashboard.html";
+                })
+                .catch(function(err) {
+                    document.getElementById("msg").innerText = "Wrong OTP";
+                });
+        }
+    </script>
+</body>
+</html>
