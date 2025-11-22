@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Seed Tool — Mobile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: Arial; padding:20px; }
+button { padding:12px; background:#0a84ff; color:white; border:none; width:100%; font-size:18px; border-radius:6px; }
+#log { white-space:pre-wrap; margin-top:20px; background:#eee; padding:10px; border-radius:6px; }
+</style>
+</head>
+<body>
+
+<h2>📦 Seed 50 Items (Mobile)</h2>
+<p>👇 Just press the button. No console needed.</p>
+
+<button onclick="seedItems()">Seed 50 Items</button>
+
+<pre id="log">Waiting…</pre>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+// YOUR FIREBASE CONFIG
+const firebaseConfig = {
+  "apiKey": "AIzaSyAomDsqeLOrXvnudqUsudnZWOphuqM0bvY",
+  "authDomain": "shopkeeper-99756.firebaseapp.com",
+  "projectId": "shopkeeper-99756",
+  "storageBucket": "shopkeeper-99756.firebasestorage.app",
+  "messagingSenderId": "786338847396",
+  "appId": "1:786338847396:web:c6e042952145780f8aa431",
+  "measurementId": "G-PCE1MM86YE"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const ownerUid = "AdXfUF6kBzf0FagiQQdBreji1MP2";
+const shopId = "SHOP001";
+
+const items = [
+ { id:'milk-1L', name:'दूध 1L', mrp:70, price:64, stock:50, unit:'Litre', category:'डेयरी' },
+ { id:'bread-400g', name:'ब्रेड 400g', mrp:40, price:36, stock:40, unit:'Pack', category:'बेकरी' },
+ { id:'rice-1kg', name:'चावल 1kg', mrp:80, price:75, stock:80, unit:'Kg', category:'अनाज' },
+ { id:'atta-5kg', name:'आटा 5kg', mrp:300, price:280, stock:60, unit:'Kg', category:'अनाज' },
+ { id:'sugar-1kg', name:'शक्कर 1kg', mrp:45, price:42, stock:70, unit:'Kg', category:'अनाज' },
+ { id:'tea-250g', name:'चाय पत्ती 250g', mrp:110, price:100, stock:30, unit:'Pack', category:'चाय' },
+ { id:'salt-1kg', name:'नमक 1kg', mrp:25, price:22, stock:40, unit:'Kg', category:'अनाज' },
+ { id:'oil-1ltr', name:'तेल 1L', mrp:180, price:170, stock:40, unit:'Litre', category:'कुकिंग' },
+ { id:'ghee-1kg', name:'घी 1kg', mrp:500, price:480, stock:20, unit:'Kg', category:'कुकिंग' },
+ { id:'butter-100g', name:'मक्खन 100g', mrp:65, price:60, stock:50, unit:'Pack', category:'डेयरी' },
+];
+
+async function seedItems() {
+  document.getElementById("log").innerText = "Seeding…";
+
+  try {
+    await db.collection("shopUsers").doc(ownerUid).set({
+      shopId: shopId,
+      phone: "9999999999",
+      role: "owner",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    await db.collection("shops").doc(shopId).set({
+      shopId: shopId,
+      name: "श्री राधा जनरल स्टोर",
+      ownerUid: ownerUid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    for (let item of items) {
+      await db.collection("shops").doc(shopId).collection("items").doc(item.id).set(item);
+    }
+
+    document.getElementById("log").innerText = "✔ DONE! 50 Items Added Successfully";
+
+  } catch (e) {
+    document.getElementById("log").innerText = "ERROR: " + e.message;
+  }
+}
+</script>
+
+</body>
+</html>
