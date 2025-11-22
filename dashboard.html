@@ -1,134 +1,109 @@
-<!DOCTYPE html>
+<!doctype html>
+
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <title>Dukaan Manager - Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Bootstrap -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dukaan Manager — Cleaned</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f5f7fa;
-    }
-    .navbar-brand {
-      font-weight: 600;
-      font-size: 20px;
-    }
-    .low-stock {
-      background: #fff3cd !important;
-    }
-    .table thead {
-      background: #0d6efd;
-      color: white;
-    }
-    .thumb-img {
-      width: 46px;
-      height: 46px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      background: #f3f4f6;
-    }
-    .status-small {
-      font-size: 12px;
-    }
+    body{padding:12px;background:#f8f9fa}
+    .thumb-img{width:40px;height:40px;object-fit:cover;border-radius:6px}
+    .status-small{margin-top:8px}
+    table th,table td{text-align:center;vertical-align:middle}
   </style>
 </head>
 <body>
-
-<!-- NAVBAR -->
-<nav class="navbar navbar-dark bg-primary">
-  <div class="container-fluid">
-    <span class="navbar-brand">Dukaan Manager</span>
-    <button class="btn btn-light btn-sm" onclick="logout()">Logout</button>
-  </div>
-</nav>
-
-<div class="container mt-4">
-
-  <h4>📦 इन्वेंटरी</h4>
-
-  <!-- Add Item Button -->
-  <button class="btn btn-success btn-sm mb-3" onclick="openModal()">+ नया आइटम जोड़ें</button>
-
-  <!-- Inventory Table -->
-  <div class="table-responsive">
-    <table class="table table-bordered table-hover text-center align-middle">
-      <thead>
+  <nav class="navbar bg-primary text-white mb-3">
+    <div class="container-fluid">
+      <span class="navbar-brand text-white">📦 Dukaan Manager</span>
+      <button class="btn btn-light btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </nav>  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h4>📦 इन्वेंटरी</h4>
+      <button class="btn btn-success" onclick="openModal()">+ नया आइटम जोड़ें</button>
+    </div><div class="table-responsive">
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
       <tr>
         <th>फोटो</th>
-<th>नाम</th>
-<th>एमआरपी (₹)</th>
-<th>डिस्काउंट (%)</th>
-<th>ऑफ़र प्राइस (₹)</th>
-<th>स्टॉक</th>
-<th>इकाई</th>
-<th>श्रेणी</th>
-<th>कार्य</th>
+        <th>नाम</th>
+        <th>एमआरपी (₹)</th>
+        <th>डिस्काउंट (%)</th>
+        <th>ऑफर प्राइस (₹)</th>
+        <th>स्टॉक</th>
+        <th>इकाई</th>
+        <th>श्रेणी</th>
+        <th>कार्रवाई</th>
       </tr>
-      </thead>
-      <tbody id="inventory-table"></tbody>
-    </table>
-  </div>
-
-  <div id="status" class="small text-muted mt-1"></div>
+    </thead>
+    <tbody id="inventory-table"></tbody>
+  </table>
 </div>
 
-<!-- ADD/EDIT Modal -->
-<div class="modal fade" id="itemModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 id="modal-title">नया आइटम</h5>
-        <button class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="item-id"/>
+<div id="status" class="small text-muted status-small"></div>
 
+  </div>  <!-- Add/Edit modal -->  <div class="modal fade" id="itemModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="modal-title" class="modal-title">नया आइटम</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="item-id"><div class="mb-2">
         <label class="form-label">नाम</label>
-        <input id="item-name" class="form-control mb-2" required>
-
-        <label class="form-label">कीमत (₹)</label>
-        <input id="item-price" type="number" class="form-control mb-2">
-        <label class="form-label">डिस्काउंट (%)</label>
-<input id="item-discount" type="number" class="form-control mb-2" placeholder="0">
-
-<label class="form-label">ऑफर प्राइस (₹)</label>
-<input id="item-offerprice" type="number" class="form-control mb-2" placeholder="0">
-        <label class="form-label">स्टॉक</label>
-        <input id="item-stock" type="number" class="form-control mb-2">
-
-        <label class="form-label">इकाई</label>
-        <input id="item-unit" class="form-control mb-2" placeholder="kg / packet / liter">
-
-        <label class="form-label">श्रेणी</label>
-        <input id="item-category" class="form-control mb-2" placeholder="Dairy, Snacks, आदि">
-
-        <small class="text-muted status-small">
-          फोटो upload अभी disabled है, category के हिसाब से icon दिखेगा।
-        </small>
+        <input id="item-name" class="form-control" required>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">रद्द</button>
-        <button class="btn btn-primary" onclick="saveItem()">सहेजें</button>
+
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <label class="form-label">कीमत (₹)</label>
+          <input id="item-price" type="number" class="form-control">
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">डिस्काउंट (%)</label>
+          <input id="item-discount" type="number" class="form-control">
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">ऑफर प्राइस (₹)</label>
+          <input id="item-offerprice" type="number" class="form-control">
+        </div>
       </div>
+
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <label class="form-label">स्टॉक</label>
+          <input id="item-stock" type="number" class="form-control">
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">इकाई</label>
+          <input id="item-unit" class="form-control" placeholder="kg / pack / litre">
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">श्रेणी</label>
+          <input id="item-category" class="form-control" placeholder="Dairy, Snacks...">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">फोटो (अगर रखना हो)</label>
+        <input id="item-photo" type="file" accept="image/*" class="form-control">
+        <div class="form-text">Image will be uploaded to Cloudinary. Replace Cloudinary details below with your own.</div>
+      </div>
+
+      <small class="text-muted">स्मरण: फोटो optional है — अगर आप Cloudinary इस्तेमाल नहीं करना चाहते तो खाली छोड़ें।</small>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">रद्द</button>
+      <button class="btn btn-primary" onclick="saveItem()">सेव करें</button>
     </div>
   </div>
 </div>
 
-<!-- Firebase v9 COMPAT (same as index.html, WITHOUT storage) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<script>
-  /************* Firebase Config - SAME as index.html *************/
+  </div>  <!-- Firebase and app script -->  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>  <script>
+  // ====== CONFIG ======
   const firebaseConfig = {
     apiKey: "AIzaSyAomDsqeLOrXvnudqUsudnZWOphuqM0bvY",
     authDomain: "shopkeeper-99756.firebaseapp.com",
@@ -138,328 +113,201 @@
     appId: "1:786338847396:web:c6e042952145780f8aa431",
     measurementId: "G-PCE1MM86YE"
   };
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-  const db   = firebase.firestore();
-// ===== Category → Icon map (PNG from Icons8) =====
-const CATEGORY_ICONS = {
-  fruits: "https://img.icons8.com/color/48/apple.png",
-  bakery: "https://img.icons8.com/color/48/bread.png",
-  dairy: "https://img.icons8.com/color/48/milk-bottle.png",
-  snacks: "https://img.icons8.com/color/48/chips.png",
-  beverages: "https://img.icons8.com/color/48/soda-can.png",
-  spices: "https://img.icons8.com/color/48/spice.png",
-  "household & personal care": "https://img.icons8.com/color/48/cleaning-a-surface.png",
-  "grains & pulses": "https://img.icons8.com/color/48/wheat.png",
-  default: "https://img.icons8.com/color/48/shop.png"
-};
+  const db = firebase.firestore();
 
-function getCategoryIcon(category) {
-  if (!category) return CATEGORY_ICONS.default;
-  const c = category.toLowerCase();
+  // ====== CLOUDINARY (Client-side unsigned) ======
+  // Create an unsigned upload preset in Cloudinary and set below
+  const CLOUDINARY_CLOUD = 'your_cloud_name';
+  const CLOUDINARY_UPLOAD_PRESET = 'your_upload_preset';
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
 
-  if (c.includes("fruit")) return CATEGORY_ICONS.fruits;
-  if (c.includes("bakery")) return CATEGORY_ICONS.bakery;
-  if (c.includes("dairy") || c.includes("milk")) return CATEGORY_ICONS.dairy;
-  if (c.includes("snack")) return CATEGORY_ICONS.snacks;
-  if (c.includes("beverage") || c.includes("drink")) return CATEGORY_ICONS.beverages;
-  if (c.includes("spice") || c.includes("masala")) return CATEGORY_ICONS.spices;
-  if (c.includes("household") || c.includes("personal")) return CATEGORY_ICONS["household & personal care"];
-  if (c.includes("grain") || c.includes("pulse") || c.includes("dal")) return CATEGORY_ICONS["grains & pulses"];
-
-  return CATEGORY_ICONS.default;
-}
-
-  let shopId = null;
+  // ====== Global state ======
+  let shopId = null; // set after auth/shop resolve
   let inventoryUnsub = null;
 
-  function setStatus(msg, type = "muted") {
-    const el = document.getElementById('status');
-    el.textContent = msg || "";
-    el.className = "small mt-1 text-" + type;
+  function setStatus(msg, type='secondary'){
+    const s = document.getElementById('status');
+    s.textContent = msg || '';
+    s.className = `small text-${type}`;
   }
 
-  /************* Helper: Category-based icon *************/
-  function getCategoryIcon(category) {
-    const base = "https://via.placeholder.com/60?text=";
-    const c = (category || "").toLowerCase();
-
-    if (c.includes("dairy") || c.includes("milk") || c.includes("दूध") || c.includes("डेयरी")) {
-      return base + encodeURIComponent("Dairy");
-    }
-    if (c.includes("snack") || c.includes("namkeen") || c.includes("स्नैक") || c.includes("नमकीन")) {
-      return base + encodeURIComponent("Snacks");
-    }
-    if (c.includes("atta") || c.includes("aata") || c.includes("flour") || c.includes("आटा") || c.includes("अनाज")) {
-      return base + encodeURIComponent("Grain");
-    }
-    if (c.includes("masala") || c.includes("spice") || c.includes("मसाला")) {
-      return base + encodeURIComponent("Masala");
-    }
-    if (c.includes("biscuit") || c.includes("cookies") || c.includes("बिस्किट")) {
-      return base + encodeURIComponent("Biscuit");
-    }
-    if (c.includes("oil") || c.includes("तेल")) {
-      return base + encodeURIComponent("Oil");
-    }
-    if (c.includes("personal") || c.includes("soap") || c.includes("tooth") || c.includes("साबुन")) {
-      return base + encodeURIComponent("Care");
-    }
-    if (c.includes("cold") || c.includes("soft") || c.includes("drink") || c.includes("पेय") || c.includes("juice")) {
-      return base + encodeURIComponent("Drinks");
-    }
-    if (c.includes("vegetable") || c.includes("सब्ज") || c.includes("भाजी")) {
-      return base + encodeURIComponent("Veg");
-    }
-    if (c.includes("fruit") || c.includes("फल")) {
-      return base + encodeURIComponent("Fruit");
-    }
-
-    return base + encodeURIComponent("Item");
+  // Helper: icon or default image
+  function getThumb(src){
+    if(!src) return 'https://via.placeholder.com/40?text=?';
+    return src;
   }
 
-  /************* LOAD INVENTORY (after auth + shopId ready) *************/
-  function startInventoryListener() {
-    if (!shopId) {
-      setStatus("No shopId set.", "danger");
-      return;
-    }
+  // ====== Inventory listener (live) ======
+  function startInventoryListener(){
+    if(!shopId) { setStatus('No shopId set.','danger'); return; }
+    if(inventoryUnsub) inventoryUnsub();
+    setStatus('Loading inventory...','secondary');
 
-    if (inventoryUnsub) {
-      inventoryUnsub();
-    }
+    inventoryUnsub = db.collection('shops').doc(shopId).collection('items').orderBy('name')
+      .onSnapshot(snapshot => {
+        let html = '';
+        snapshot.forEach(doc => {
+          const item = doc.data();
+          const photo = getThumb(item.imageUrl);
+          const offer = (typeof item.offerPrice !== 'undefined' && item.offerPrice !== null) ? item.offerPrice : item.price;
+          const discount = item.discountPercent || 0;
 
-    setStatus("Loading inventory...", "secondary");
-
-    inventoryUnsub = db
-      .collection("shops")
-      .doc(shopId)
-      .collection("items")
-      .orderBy("name")
-      .onSnapshot(
-        (snapshot) => {
-          let html = "";
-          snapshot.forEach(doc => {
-            const item = doc.data();
-            const hasMin = typeof item.minStock === "number";
-            const low  = (hasMin && item.stock <= item.minStock) ? "low-stock" : "";
-            const photo = getCategoryIcon(item.category);
-
-            html += `
-  <tr class="${low}">
-    <td><img src="${photo}" class="thumb-img" alt="photo"></td>
-    <td>${item.name || ""}</td>
-
-    <!-- MRP -->
-    <td>₹${item.price ?? ""}</td>
-
-    <!-- Discount percent -->
-    <td>${item.discountPercent ?? 0}%</td>
-
-    <!-- Offer price (fallback to price if not set) -->
-    <td>₹${(typeof item.offerPrice !== "undefined" ? item.offerPrice : item.price) ?? ""}</td>
-
-    <td>${item.stock ?? ""}</td>
-    <td>${item.unit || ""}</td>
-    <td>${item.category || ""}</td>
-
-    <td>
-      <button class="btn btn-sm btn-warning" onclick="editItem('${doc.id}')">✏️</button>
-      <button class="btn btn-sm btn-danger" onclick="deleteItem('${doc.id}')">🗑️</button>
-    </td>
-  </tr>`;
-          });
-          document.getElementById("inventory-table").innerHTML = html;
-          setStatus("Inventory loaded (" + snapshot.size + " items).", "success");
-        },
-        (err) => {
-          console.error("Inventory listener error:", err);
-          setStatus("Error loading inventory: " + err.message, "danger");
-        }
-      );
-  }
-
-  /************* AUTH + SHOP RESOLVE *************/
-  auth.onAuthStateChanged(async (user) => {
-    if (!user) {
-      alert("Session expired. Please login again.");
-      window.location.href = "index.html";
-      return;
-    }
-
-    try {
-      // 1) Try localStorage (index.html ne yahan save kiya tha)
-      shopId = null;
-      try {
-        shopId = localStorage.getItem("shopId");
-      } catch (e) {
-        console.warn("Cannot read shopId from localStorage:", e);
-      }
-
-      // 2) Backup: shopUsers collection se nikaal lo
-      if (!shopId) {
-        const doc = await db.collection("shopUsers").doc(user.uid).get();
-        if (doc.exists) {
-          shopId = doc.data().shopId;
-        }
-      }
-
-      if (!shopId) {
-        alert("No shop linked with this user. Please register again.");
-        window.location.href = "index.html";
-        return;
-      }
-
-      setStatus("Shop ID: " + shopId, "secondary");
-      startInventoryListener();
-    } catch (e) {
-      console.error(e);
-      setStatus("Error resolving shop: " + e.message, "danger");
-    }
-  });
-
-  /************* Add/Edit Item Modal helpers *************/
-  function openModal() {
-    document.getElementById("modal-title").textContent = "नया आइटम";
-    document.getElementById("item-id").value = "";
-    document.getElementById("item-name").value = "";
-    document.getElementById("item-price").value = "";
-    document.getElementById("item-stock").value = "";
-    document.getElementById("item-unit").value = "";
-    document.getElementById("item-category").value = "";
-    document.getElementById("item-discount").value = "";
-    document.getElementById("item-offerprice").value = "";
-    
-    new bootstrap.Modal(document.getElementById("itemModal")).show();
-  }
-
-  function editItem(id) {
-    if (!shopId) return;
-    db.collection("shops").doc(shopId).collection("items").doc(id).get()
-      .then(doc => {
-        if (!doc.exists) return;
-        const i = doc.data();
-        document.getElementById("modal-title").textContent = "आइटम संपादन";
-        document.getElementById("item-id").value = id;
-        document.getElementById("item-name").value = i.name || "";
-        document.getElementById("item-price").value = i.price ?? "";
-        document.getElementById("item-stock").value = i.stock ?? "";
-        document.getElementById("item-unit").value = i.unit || "";
-        document.getElementById("item-category").value = i.category || "";
-        document.getElementById("item-discount").value = i.discountPercent ?? 0;
-        document.getElementById("item-offerprice").value = i.offerPrice ?? i.price ?? 0;
-        new bootstrap.Modal(document.getElementById("itemModal")).show();
-      })
-      .catch(err => {
-        console.error(err);
-        setStatus("Error loading item: " + err.message, "danger");
+          html += `\n<tr>`+
+                  `<td><img src="${photo}" class="thumb-img" alt="photo"></td>`+
+                  `<td>${item.name || ''}</td>`+
+                  `<td>₹${item.price ?? ''}</td>`+
+                  `<td>${discount}%</td>`+
+                  `<td>₹${offer}</td>`+
+                  `<td>${item.stock ?? ''}</td>`+
+                  `<td>${item.unit || ''}</td>`+
+                  `<td>${item.category || ''}</td>`+
+                  `<td>`+
+                    `<button class="btn btn-sm btn-warning me-1" onclick="editItem('${doc.id}')">✏️</button>`+
+                    `<button class="btn btn-sm btn-danger" onclick="deleteItem('${doc.id}')">🗑️</button>`+
+                  `</td>`+
+                `</tr>`;
+        });
+        document.getElementById('inventory-table').innerHTML = html;
+        setStatus(`Inventory loaded (${snapshot.size} items).`, 'success');
+      }, err => {
+        console.error('Inventory listener error:', err);
+        setStatus('Error loading inventory: ' + err.message, 'danger');
       });
   }
 
-  /************* Save Item (add/update, NO photo upload) *************/
-  <!-- REPLACE THE ENTIRE saveItem() FUNCTION WITH THIS -->
-<script>
-async function saveItem() {
-  if (!shopId) return;
-
-  const id = document.getElementById("item-id").value;
-  const name = document.getElementById("item-name").value.trim();
-  const price = Number(document.getElementById("item-price").value) || 0;
-  const stock = Number(document.getElementById("item-stock").value) || 0;
-  const unit = document.getElementById("item-unit").value.trim();
-  const category = document.getElementById("item-category").value.trim();
-
-  // NEW: discount and offer price (will fallback to 0 / price)
-  const discount = Number(document.getElementById("item-discount").value) || 0;
-  const offerPrice = Number(document.getElementById("item-offerprice").value) || 0;
-
-  if (!name) {
-    alert("कृपया नाम भरें");
-    return;
-  }
-
-  const colRef = db.collection("shops").doc(shopId).collection("items");
-  let docRef;
-
-  if (id) {
-    docRef = colRef.doc(id);
-  } else {
-    docRef = colRef.doc(); // new id
-  }
-
-  try {
-    setStatus("Saving item...", "secondary");
-
-    const itemData = {
-      name,
-      price,
-      stock,
-      unit,
-      category,
-      discountPercent: discount,
-      offerPrice: (offerPrice && offerPrice > 0) ? offerPrice : price,
-      minStock: 5,
-      status: "active",
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    if (id) {
-      // update existing
-      await docRef.update(itemData);
-    } else {
-      // create new (add createdAt)
-      await docRef.set(Object.assign({}, itemData, {
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }));
-    }
-
-    setStatus("Item saved.", "success");
-    bootstrap.Modal.getInstance(document.getElementById("itemModal")).hide();
-    // reload items (listener should auto-update, but call load to be safe)
-    loadItems && typeof loadItems === "function" && loadItems();
-
-  } catch (err) {
-    console.error(err);
-    setStatus("Error saving item: " + err.message, "danger");
-  }
-}
-</script>
-/************* Delete *************/
-function deleteItem(id) {
-  if (!shopId) return;
-  if (!confirm("आइटम हटाना चाहते हो?")) return;
-
-  db.collection("shops").doc(shopId).collection("items").doc(id).delete()
-    .then(() => {
-      setStatus("Item deleted.", "success");
-    })
-    .catch(err => {
-      console.error(err);
-      setStatus("Error deleting item: " + err.message, "danger");
+  // ====== Open modal for new item ======
+  function openModal(){
+    document.getElementById('modal-title').textContent = 'नया आइटम';
+    ['item-id','item-name','item-price','item-stock','item-unit','item-category','item-discount','item-offerprice'].forEach(id=>{
+      const el = document.getElementById(id); if(el) el.value = '';
     });
-}
+    document.getElementById('item-photo').value = '';
+    new bootstrap.Modal(document.getElementById('itemModal')).show();
+  }
 
-/************* Logout *************/
-function logout() {
-  auth.signOut().finally(() => {
-    try { localStorage.removeItem("shopId"); } catch (e) {}
-    window.location.href = "index.html";
+  // ====== Edit existing item ======
+  async function editItem(id){
+    if(!shopId) return;
+    try{
+      const doc = await db.collection('shops').doc(shopId).collection('items').doc(id).get();
+      if(!doc.exists) return;
+      const i = doc.data();
+      document.getElementById('modal-title').textContent = 'आइटम संपादन';
+      document.getElementById('item-id').value = id;
+      document.getElementById('item-name').value = i.name || '';
+      document.getElementById('item-price').value = i.price ?? '';
+      document.getElementById('item-stock').value = i.stock ?? '';
+      document.getElementById('item-unit').value = i.unit || '';
+      document.getElementById('item-category').value = i.category || '';
+      document.getElementById('item-discount').value = i.discountPercent ?? '';
+      document.getElementById('item-offerprice').value = i.offerPrice ?? '';
+      document.getElementById('item-photo').value = '';
+      new bootstrap.Modal(document.getElementById('itemModal')).show();
+    } catch(e){ console.error(e); setStatus('Error loading item: ' + e.message,'danger'); }
+  }
+
+  // ====== Upload image to Cloudinary (returns url) ======
+  async function uploadToCloudinary(file){
+    if(!file) return null;
+    if(!CLOUDINARY_CLOUD || !CLOUDINARY_UPLOAD_PRESET) {
+      console.warn('Cloudinary details not set — skipping image upload.');
+      return null;
+    }
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    const res = await fetch(CLOUDINARY_URL, { method:'POST', body: fd });
+    const data = await res.json();
+    return data.secure_url || data.url || null;
+  }
+
+  // ====== Save item (create/update) ======
+  async function saveItem(){
+    if(!shopId) return;
+    const id = document.getElementById('item-id').value;
+    const name = document.getElementById('item-name').value.trim();
+    const price = Number(document.getElementById('item-price').value) || 0;
+    const stock = Number(document.getElementById('item-stock').value) || 0;
+    const unit = document.getElementById('item-unit').value.trim();
+    const category = document.getElementById('item-category').value.trim();
+    const discount = Number(document.getElementById('item-discount').value) || 0;
+    const offerPriceInput = document.getElementById('item-offerprice').value;
+    const offerPrice = (offerPriceInput === '' || offerPriceInput === null) ? null : Number(offerPriceInput);
+
+    if(!name){ alert('कृपया नाम भरें'); return; }
+
+    const photoFile = document.getElementById('item-photo').files[0];
+
+    setStatus('Saving item...', 'secondary');
+
+    try{
+      // upload image first (if present)
+      let imageUrl = null;
+      if(photoFile) imageUrl = await uploadToCloudinary(photoFile);
+
+      const colRef = db.collection('shops').doc(shopId).collection('items');
+      let docRef = id ? colRef.doc(id) : colRef.doc();
+
+      const itemData = {
+        name,
+        price,
+        stock,
+        unit,
+        category,
+        discountPercent: discount,
+        offerPrice: (offerPrice !== null && !isNaN(offerPrice)) ? offerPrice : (price || null),
+        status: 'active',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if(imageUrl) itemData.imageUrl = imageUrl;
+      if(!id){ // set createdAt if new
+        await docRef.set(Object.assign({}, itemData, { createdAt: firebase.firestore.FieldValue.serverTimestamp() }));
+      } else {
+        await docRef.update(itemData);
+      }
+
+      setStatus('Item saved.', 'success');
+      bootstrap.Modal.getInstance(document.getElementById('itemModal')).hide();
+      // No explicit reload needed — onSnapshot will update the table automatically
+
+    } catch(err){
+      console.error(err);
+      setStatus('Error saving item: ' + err.message, 'danger');
+    }
+  }
+
+  // ====== Delete ======
+  function deleteItem(id){
+    if(!shopId) return;
+    if(!confirm('आइटम हटाना चाहते हो?')) return;
+    db.collection('shops').doc(shopId).collection('items').doc(id).delete()
+      .then(()=> setStatus('Item deleted.','success'))
+      .catch(err=> { console.error(err); setStatus('Error deleting item: '+err.message,'danger'); });
+  }
+
+  // ====== Logout ======
+  function logout(){ auth.signOut().finally(()=>{ try{ localStorage.removeItem('shopId'); }catch(e){} window.location.href='index.html'; }); }
+
+  // ====== AUTH + resolve shop ======
+  auth.onAuthStateChanged(async user => {
+    if(!user){ alert('Session expired. Please login again.'); window.location.href='index.html'; return; }
+    try{
+      // try localStorage first
+      shopId = localStorage.getItem('shopId');
+    } catch(e){ console.warn('Cannot read shopId:', e); }
+
+    try{
+      if(!shopId){
+        const doc = await db.collection('shopUsers').doc(user.uid).get();
+        if(doc.exists) shopId = doc.data().shopId;
+      }
+      if(!shopId){ alert('No shop linked with this user. Please register again.'); window.location.href='index.html'; return; }
+      setStatus('Shop ID: ' + shopId, 'secondary');
+      startInventoryListener();
+    } catch(e){ console.error(e); setStatus('Error resolving shop: '+ e.message,'danger'); }
   });
-}
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-</body>
+  </script>  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script></body>
 </html>
-
-
-
-
-
-
-
-
