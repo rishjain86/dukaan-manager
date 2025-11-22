@@ -370,7 +370,8 @@ function getCategoryIcon(category) {
     const stock = Number(document.getElementById("item-stock").value || 0);
     const unit  = document.getElementById("item-unit").value.trim();
     const category = document.getElementById("item-category").value.trim();
-
+    const discount = Number(document.getElementById("item-discount").value) || 0;
+    const offerPrice = Number(document.getElementById("item-offerprice").value) || 0;
     if (!name) {
       alert("कृपया नाम भरें");
       return;
@@ -389,14 +390,16 @@ function getCategoryIcon(category) {
       setStatus("Saving item...", "secondary");
 
       const itemData = {
-        name,
-        price,
-        stock,
-        unit,
-        category,
-        minStock: 5,
-        status: "active"
-      };
+  name,
+  price,
+  stock,
+  unit,
+  category,
+  discountPercent: discount,
+  offerPrice: offerPrice || price,
+  minStock: 5,
+  status: "active"
+};
 
       if (id) {
         await docRef.update(itemData);
@@ -441,6 +444,7 @@ function getCategoryIcon(category) {
 
 </body>
 </html>
+
 
 
 
