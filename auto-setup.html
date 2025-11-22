@@ -1,10 +1,15 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"/><title>Auto Setup - Dukaan Manager</title></head>
+<head>
+  <meta charset="utf-8"/>
+  <title>Auto Setup - Dukaan Manager</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+</head>
 <body>
-<h3>Auto Setup</h3>
-<p>Paste your firebaseConfig into the <code>firebaseConfig</code> variable below, then click "Run Auto Setup".</p>
-<textarea id="cfg" style="width:100%;height:160px;">const firebaseConfig = {
+  <h3>Auto Setup</h3>
+  <p>Paste your firebaseConfig into the <code>firebaseConfig</code> variable below, then click "Run Auto Setup".</p>
+
+  <textarea id="cfg" style="width:100%;height:160px;">const firebaseConfig = {
   "apiKey": "AIzaSyAomDsqeLOrXvnudqUsudnZWOphuqM0bvY",
   "authDomain": "shopkeeper-99756.firebaseapp.com",
   "projectId": "shopkeeper-99756",
@@ -13,29 +18,59 @@
   "appId": "1:786338847396:web:c6e042952145780f8aa431",
   "measurementId": "G-PCE1MM86YE"
 };</textarea><br/>
-<button id="run">Run Auto Setup</button>
-<pre id="out" style="background:#f4f4f4;padding:8px;"></pre>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script>
-document.getElementById('run').addEventListener('click', async function(){
-  try{
-    const cfgText = document.getElementById('cfg').value;
-    const cfg = eval("(" + cfgText + ")");
-    firebase.initializeApp(cfg);
-    const db = firebase.firestore();
-    const ownerUid = 'AdXfUF6kBzf0FagiQQdBreji1MP2';
-    const shopId = 'SHOP001';
-    await db.collection('shopUsers').doc(ownerUid).set({ shopId: shopId, role:'owner', phone:'9999999999', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-    await db.collection('shops').doc(shopId).set({ shopId: shopId, name:'श्री राधा जनरल स्टोर', ownerUid: ownerUid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-    document.getElementById('out').innerText = 'Shop and shopUser created. Now run seed.html to add items.';
-  }catch(e){
-    document.getElementById('out').innerText = 'Error: '+e.message;
-  }
-});
 
-/* AUTO-RUN */
-<script>document.getElementById('run').click();</script>
+  <button id="run">Run Auto Setup</button>
+  <pre id="out" style="background:#f4f4f4;padding:8px;"></pre>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+  // Main handler — keeps logic inside one script tag (no broken nested tags)
+  document.getElementById('run').addEventListener('click', async function(){
+    try{
+      const cfgText = document.getElementById('cfg').value;
+      const cfg = eval("(" + cfgText + ")");
+      // avoid double-init
+      if (!firebase.apps.length) {
+        firebase.initializeApp(cfg);
+      }
+      const db = firebase.firestore();
+      const ownerUid = 'AdXfUF6kBzf0FagiQQdBreji1MP2';
+      const shopId = 'SHOP001';
+
+      await db.collection('shopUsers').doc(ownerUid).set({
+        shopId: shopId,
+        role:'owner',
+        phone:'9999999999',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      await db.collection('shops').doc(shopId).set({
+        shopId: shopId,
+        name:'श्री राधा जनरल स्टोर',
+        ownerUid: ownerUid,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      document.getElementById('out').innerText = 'Shop and shopUser created. Now run seed.html to add items.';
+    }catch(e){
+      document.getElementById('out').innerText = 'Error: '+ (e && e.message ? e.message : e);
+      console.error(e);
+    }
+  });
+
+  // Auto-run after DOM ready — wait a little to ensure button exists
+  window.addEventListener('DOMContentLoaded', function(){
+    // small delay so remote script loads and button available
+    setTimeout(function(){
+      try {
+        var btn = document.getElementById('run');
+        if (btn) btn.click();
+      } catch(e) { console.warn('auto-run failed', e); }
+    }, 900);
+  });
+  </script>
 </body>
 </html>
