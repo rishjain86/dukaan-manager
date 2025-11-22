@@ -428,36 +428,34 @@ async function saveItem() {
   }
 }
 </script>
+/************* Delete *************/
+function deleteItem(id) {
+  if (!shopId) return;
+  if (!confirm("आइटम हटाना चाहते हो?")) return;
 
-  /************* Delete *************/
-  function deleteItem(id) {
-    if (!shopId) return;
-    if (!confirm("आइटम हटाना चाहते हैं?")) return;
-
-    db.collection("shops").doc(shopId).collection("items").doc(id).delete()
-      .then(() => {
-        setStatus("Item deleted.", "success");
-      })
-      .catch(err => {
-        console.error(err);
-        setStatus("Error deleting item: " + err.message, "danger");
-      });
-  }
-
-  /************* Logout *************/
-  function logout() {
-    auth.signOut().finally(() => {
-      try { localStorage.removeItem("shopId"); } catch (e) {}
-      window.location.href = "index.html";
+  db.collection("shops").doc(shopId).collection("items").doc(id).delete()
+    .then(() => {
+      setStatus("Item deleted.", "success");
+    })
+    .catch(err => {
+      console.error(err);
+      setStatus("Error deleting item: " + err.message, "danger");
     });
-  }
-</script>
+}
 
+/************* Logout *************/
+function logout() {
+  auth.signOut().finally(() => {
+    try { localStorage.removeItem("shopId"); } catch (e) {}
+    window.location.href = "index.html";
+  });
+}
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
+
 
 
 
