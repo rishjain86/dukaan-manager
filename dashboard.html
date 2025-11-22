@@ -250,18 +250,28 @@ function getCategoryIcon(category) {
             const photo = getCategoryIcon(item.category);
 
             html += `
-              <tr class="${low}">
-                <td><img src="${photo}" class="thumb-img" alt="photo"></td>
-                <td>${item.name || ""}</td>
-                <td>₹${item.price ?? ""}</td>
-                <td>${item.stock ?? ""}</td>
-                <td>${item.unit || ""}</td>
-                <td>${item.category || ""}</td>
-                <td>
-                  <button class="btn btn-sm btn-warning" onclick="editItem('${doc.id}')">✏</button>
-                  <button class="btn btn-sm btn-danger" onclick="deleteItem('${doc.id}')">🗑</button>
-                </td>
-              </tr>`;
+  <tr class="${low}">
+    <td><img src="${photo}" class="thumb-img" alt="photo"></td>
+    <td>${item.name || ""}</td>
+
+    <!-- MRP -->
+    <td>₹${item.price ?? ""}</td>
+
+    <!-- Discount percent -->
+    <td>${item.discountPercent ?? 0}%</td>
+
+    <!-- Offer price (fallback to price if not set) -->
+    <td>₹${(typeof item.offerPrice !== "undefined" ? item.offerPrice : item.price) ?? ""}</td>
+
+    <td>${item.stock ?? ""}</td>
+    <td>${item.unit || ""}</td>
+    <td>${item.category || ""}</td>
+
+    <td>
+      <button class="btn btn-sm btn-warning" onclick="editItem('${doc.id}')">✏️</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteItem('${doc.id}')">🗑️</button>
+    </td>
+  </tr>`;
           });
           document.getElementById("inventory-table").innerHTML = html;
           setStatus("Inventory loaded (" + snapshot.size + " items).", "success");
@@ -428,6 +438,7 @@ function getCategoryIcon(category) {
 
 </body>
 </html>
+
 
 
 
