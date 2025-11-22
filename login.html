@@ -1,122 +1,195 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dukaan Login</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dukaan Manager — Login</title>
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+  <!-- Use compat SDKs because the rest of your code uses firebase.auth() style -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #f5f5f5;
-            padding: 40px;
-            text-align: center;
-        }
-        .card {
-            max-width: 350px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
-        }
-        input {
-            width: 95%;
-            padding: 12px;
-            margin-top: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 15px;
-            background: #007bff;
-            border: none;
-            color: white;
-            font-size: 16px;
-            border-radius: 8px;
-        }
-        #recaptcha-container {
-            margin-top: 10px;
-        }
-    </style>
+  <style>
+    body{font-family:Inter,system-ui,Arial;margin:0;background:#f3f6fb;display:flex;align-items:center;justify-content:center;height:100vh}
+    .card{width:360px;max-width:94%;background:#fff;padding:20px;border-radius:12px;box-shadow:0 8px 30px rgba(21,32,43,0.06)}
+    h2{margin:0 0 12px;font-size:20px}
+    input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e5e7eb;margin-top:8px;font-size:15px}
+    button{width:100%;padding:10px;border-radius:8px;border:0;background:#206bc4;color:#fff;font-size:15px;margin-top:12px}
+    .muted{color:#6b7280;font-size:13px;margin-top:8px}
+    #msg{color:#b91c1c;margin-top:8px;min-height:18px}
+    .small{font-size:13px;color:#374151;margin-top:6px}
+    .actions{display:flex;gap:8px}
+    .btn-ghost{background:#eef2ff;color:#1e3a8a;border-radius:8px;padding:8px;flex:1;border:0}
+    .btn-bypass{background:#e2e8f0;color:#0f172a;border-radius:8px;padding:8px;flex:1;border:0}
+  </style>
 </head>
-
 <body>
-    <div class="card">
-        <h2>Login to Dukaan Manager</h2>
+  <div class="card" role="main">
+    <h2>श्री राधा जनरल स्टोर — Login</h2>
 
-        <input id="phone" type="tel" placeholder="Enter phone (10 digits)">
-        <div id="recaptcha-container"></div>
-        <button onclick="sendOTP()">Send OTP</button>
+    <label class="small">Phone (10 digits)</label>
+    <input id="phone" type="tel" placeholder="9567xxxxxx" inputmode="numeric" />
 
-        <input id="otp" type="text" placeholder="Enter OTP">
-        <button onclick="verifyOTP()">Verify OTP</button>
+    <div id="recaptcha-container" style="margin-top:10px;"></div>
 
-        <p id="msg" style="color:red; margin-top:10px;"></p>
+    <button id="sendBtn">Send OTP</button>
+
+    <label class="small" style="margin-top:12px">Enter OTP</label>
+    <input id="otp" type="text" placeholder="6 digit OTP" inputmode="numeric" />
+    <button id="verifyBtn">Verify OTP</button>
+
+    <div id="msg" aria-live="polite"></div>
+
+    <div class="muted">Dev tools / Debug</div>
+    <div class="actions">
+      <button id="bypassBtn" class="btn-bypass" title="Bypass (for testing)">Bypass (Set UID)</button>
+      <button id="helpBtn" class="btn-ghost" title="Help / Console">Help</button>
     </div>
+  </div>
 
-    <script>
-        // ---------- Your Firebase Config (AUTO INSERTED IN PACKAGE) ----------
-        const firebaseConfig = {
-          apiKey: "AIzaSyAomDsqeLOrXvnudqUsudnZWOphuqM0bvY",
-          authDomain: "shopkeeper-99756.firebaseapp.com",
-          projectId: "shopkeeper-99756",
-          storageBucket: "shopkeeper-99756.firebasestorage.app",
-          messagingSenderId: "786338847396",
-          appId: "1:786338847396:web:c6e042952145780f8aa431",
-          measurementId: "G-PCE1MM86YE"
-        };
+  <script>
+    // ----------------- CONFIG: replace with your project's config if needed -----------------
+    const firebaseConfig = {
+      apiKey: "AIzaSyAomDsqeLOrXvnudqUsudnZWOphuqM0bvY",
+      authDomain: "shopkeeper-99756.firebaseapp.com",
+      projectId: "shopkeeper-99756",
+      storageBucket: "shopkeeper-99756.firebasestorage.app",
+      messagingSenderId: "786338847396",
+      appId: "1:786338847396:web:c6e042952145780f8aa431",
+      measurementId: "G-PCE1MM86YE"
+    };
+    // ----------------------------------------------------------------------------------------
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
+    const sendBtn = document.getElementById('sendBtn');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const phoneInput = document.getElementById('phone');
+    const otpInput = document.getElementById('otp');
+    const msgEl = document.getElementById('msg');
+    const bypassBtn = document.getElementById('bypassBtn');
+    const helpBtn = document.getElementById('helpBtn');
+
+    let confirmationResult = null;
+    let recaptchaWidgetId = null;
+
+    function showMsg(txt, isErr) {
+      msgEl.style.color = isErr ? '#b91c1c' : '#059669';
+      msgEl.textContent = txt || '';
+    }
+
+    // Render reCAPTCHA (explicit)
+    function renderRecaptcha() {
+      try {
+        if (window.recaptchaVerifier) {
+          // reset if already present
+          if (typeof window.grecaptcha !== 'undefined' && recaptchaWidgetId !== null) {
+            try { window.grecaptcha.reset(recaptchaWidgetId); } catch(e){}
+          }
+        }
         window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-            size: 'normal',
-            callback: function() {
-                console.log("Recaptcha solved");
-            }
+          'size': 'normal',
+          'callback': function(response) { /* recaptcha solved */ },
+          'expired-callback': function() { showMsg('reCAPTCHA expired, please solve again.', true); }
         });
+        recaptchaWidgetId = window.recaptchaVerifier.render && window.recaptchaVerifier.render();
+      } catch (e) {
+        console.error('recaptcha render err', e);
+        showMsg('reCAPTCHA error. Try refreshing the page.', true);
+      }
+    }
 
-        function sendOTP() {
-            let phone = document.getElementById("phone").value;
-            if (phone.length !== 10) {
-                document.getElementById("msg").innerText = "Enter valid phone";
-                return;
-            }
+    // basic validation
+    function normalizePhone(v) {
+      v = (v||'').replace(/\D/g,'');
+      if (v.length === 10) return '+91' + v;
+      if (v.startsWith('91') && v.length === 12) return '+' + v;
+      if (v.startsWith('+') && v.length >= 10) return v;
+      return null;
+    }
 
-            let fullPhone = "+91" + phone;
+    // Send OTP
+    sendBtn.addEventListener('click', async function(){
+      showMsg('');
+      const fullPhone = normalizePhone(phoneInput.value);
+      if (!fullPhone) { showMsg('Enter valid 10-digit phone', true); return; }
+      sendBtn.disabled = true;
+      showMsg('Sending OTP...');
+      try {
+        if (!window.recaptchaVerifier) renderRecaptcha();
+        confirmationResult = await auth.signInWithPhoneNumber(fullPhone, window.recaptchaVerifier);
+        showMsg('OTP sent. Enter OTP (check test number or SMS).');
+      } catch(err) {
+        console.error('sendOTP err', err);
+        showMsg('Error sending OTP: ' + (err && err.message || err), true);
+        // If recaptcha had issues, reset and re-render
+        try { if (window.grecaptcha && recaptchaWidgetId !== null) window.grecaptcha.reset(recaptchaWidgetId); } catch(e){}
+      } finally {
+        sendBtn.disabled = false;
+      }
+    });
 
-            auth.signInWithPhoneNumber(fullPhone, window.recaptchaVerifier)
-                .then(function(confirmation) {
-                    window.confirmationResult = confirmation;
-                    document.getElementById("msg").innerText = "OTP sent!";
-                })
-                .catch(function(error) {
-                    document.getElementById("msg").innerText = "Error: " + error.message;
-                });
-        }
+    // Verify OTP
+    verifyBtn.addEventListener('click', async function(){
+      showMsg('');
+      if (!confirmationResult) { showMsg('No OTP request active. Click Send OTP first.', true); return; }
+      const code = (otpInput.value||'').trim();
+      if (code.length < 4) { showMsg('Enter the OTP', true); return; }
+      verifyBtn.disabled = true;
+      showMsg('Verifying...');
+      try {
+        const result = await confirmationResult.confirm(code);
+        const user = result.user;
+        // Save uid and go to dashboard
+        localStorage.setItem('uid', user.uid);
+        // Optionally set shopId if known — keep existing if present
+        if (!localStorage.getItem('shopId')) localStorage.setItem('shopId','SHOP001');
+        showMsg('Verified! Redirecting...');
+        setTimeout(()=> location.href = 'dashboard.html', 800);
+      } catch (err) {
+        console.error('verifyErr', err);
+        showMsg('OTP verification failed: ' + (err && err.message || err), true);
+      } finally {
+        verifyBtn.disabled = false;
+      }
+    });
 
-        function verifyOTP() {
-            let otp = document.getElementById("otp").value;
+    // Bypass button for testing (sets UID and SHOP and opens dashboard)
+    bypassBtn.addEventListener('click', function(){
+      // WARNING: only for testing / local use
+      localStorage.setItem('uid','AdXfUF6kBzf0FagiQQdBreji1MP2');
+      localStorage.setItem('shopId','SHOP001');
+      alert('Test session set — opening dashboard');
+      location.href = 'dashboard.html';
+    });
 
-            window.confirmationResult.confirm(otp)
-                .then(function(result) {
-                    let user = result.user;
-                    localStorage.setItem("uid", user.uid);
+    // Help button: show quick debug info
+    helpBtn.addEventListener('click', function(){
+      const info = [
+        'Firebase apps: ' + (firebase.apps && firebase.apps.length || 0),
+        'Auth available: ' + (!!(firebase && firebase.auth)),
+        'recaptchaEl: ' + (!!document.getElementById('recaptcha-container')),
+        'localStorage uid: ' + (localStorage.getItem('uid')||'none'),
+        'localStorage shopId: ' + (localStorage.getItem('shopId')||'none')
+      ].join('\\n');
+      alert(info);
+    });
 
-                    // Redirect to dashboard
-                    window.location.href = "dashboard.html";
-                })
-                .catch(function(err) {
-                    document.getElementById("msg").innerText = "Wrong OTP";
-                });
-        }
-    </script>
+    // On load render recaptcha
+    window.addEventListener('load', function(){ renderRecaptcha(); });
+
+    // If user is already signed in, redirect to dashboard automatically
+    auth.onAuthStateChanged(function(u){
+      if (u) {
+        if (!localStorage.getItem('uid')) localStorage.setItem('uid', u.uid);
+        // ensure shopId present
+        if (!localStorage.getItem('shopId')) localStorage.setItem('shopId','SHOP001');
+        // small delay to allow UI to show
+        setTimeout(()=> { try { location.href = 'dashboard.html'; } catch(e){} }, 600);
+      }
+    });
+  </script>
 </body>
 </html>
