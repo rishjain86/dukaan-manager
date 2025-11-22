@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /shopUsers/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /shops/{shopId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.token.email_verified == true;
+      allow update, delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+    }
+
+    match /shops/{shopId}/items/{itemId} {
+      allow read: if true;
+      allow create: if request.auth != null && get(/databases/$(database)/documents/shopUsers/$(request.auth.uid)).data.shopId == shopId;
+      allow update, delete: if request.auth != null && get(/databases/$(database)/documents/shopUsers/$(request.auth.uid)).data.shopId == shopId;
+    }
+
+    match /shops/{shopId}/orders/{orderId} {
+      allow create: if request.auth != null
+                    && request.resource.data.customerUid == request.auth.uid
+                    && request.resource.data.shopId == shopId;
+      allow read: if request.auth != null && (
+                        request.auth.uid == resource.data.customerUid ||
+                        get(/databases/$(database)/documents/shopUsers/$(request.auth.uid)).data.shopId == shopId
+                   );
+      allow update: if request.auth != null && get(/databases/$(database)/documents/shopUsers/$(request.auth.uid)).data.shopId == shopId;
+      allow delete: if false;
+    }
+
+    match /shops/{shopId}/coupons/{couponId} {
+      allow read: if true;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/shopUsers/$(request.auth.uid)).data.shopId == shopId;
+    }
+
+    match /debug/errors/{doc} {
+      allow create: if request.auth != null;
+      allow read, write: if false;
+    }
+  }
+}

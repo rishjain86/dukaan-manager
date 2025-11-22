@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Seed - Dukaan Manager</title>
+</head>
+<body>
+<h2>Seed Tool — Dukaan Manager</h2>
+<p>Open the browser console (F12) and run the script below on a page that has firebase initialized (or paste this into a page that includes your firebaseConfig + firebase SDKs).</p>
+<pre id="script" style="white-space:pre-wrap;background:#f4f4f4;padding:12px;border-radius:6px;"></pre>
+<script>
+const seedScript = `(async function seed50(){
+  const db = firebase.firestore();
+  const ownerUid = 'AdXfUF6kBzf0FagiQQdBreji1MP2'; // replace if needed
+  const shopId = 'SHOP001';
+
+  // map shop user
+  await db.collection('shopUsers').doc(ownerUid).set({
+    shopId: shopId,
+    role: 'owner',
+    phone: '9999999999',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  // shop meta
+  await db.collection('shops').doc(shopId).set({
+    shopId: shopId,
+    name: 'श्री राधा जनरल स्टोर',
+    ownerUid: ownerUid,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  const items = [
+    { id:'milk-1l', name:'दूध 1L', mrp:70, price:64, discountPercent:0, offerPrice:64, unit:'लीटर', category:'डेयरी', stock:50 },
+    { id:'bread-400g', name:'ब्रेड 400g', mrp:40, price:36, discountPercent:10, offerPrice:36, unit:'पैक', category:'बेकरी', stock:40 },
+    { id:'rice-1kg', name:'चावल 1kg', mrp:80, price:75, discountPercent:0, offerPrice:75, unit:'किलो', category:'अनाज', stock:30 },
+    { id:'atta-5kg', name:'आटा 5kg', mrp:300, price:280, discountPercent:0, offerPrice:280, unit:'बोरा', category:'अनाज', stock:20 },
+    { id:'sugar-1kg', name:'शक्कर 1kg', mrp:45, price:42, discountPercent:0, offerPrice:42, unit:'किलो', category:'अनाज', stock:25 },
+    { id:'tea-250g', name:'चाय पत्ती 250g', mrp:120, price:110, discountPercent:0, offerPrice:110, unit:'पैक', category:'पेय', stock:30 },
+    { id:'salt-1kg', name:'नमक 1kg', mrp:25, price:22, discountPercent:0, offerPrice:22, unit:'किलो', category:'अन्य', stock:40 },
+    { id:'oil-1ltr', name:'सरसों तेल 1L', mrp:180, price:170, discountPercent:0, offerPrice:170, unit:'लीटर', category:'पेय', stock:25 },
+    { id:'ghee-1kg', name:'घी 1kg', mrp:500, price:480, discountPercent:5, offerPrice:480, unit:'किलो', category:'डेयरी', stock:10 },
+    { id:'butter-100g', name:'मक्खन 100g', mrp:65, price:58, discountPercent:0, offerPrice:58, unit:'पैक', category:'डेयरी', stock:30 },
+    { id:'curd-1kg', name:'दही 1kg', mrp:80, price:75, discountPercent:0, offerPrice:75, unit:'किलो', category:'डेयरी', stock:20 },
+    { id:'egg-12', name:'अंडे 12pcs', mrp:90, price:85, discountPercent:0, offerPrice:85, unit:'पैक', category:'डेयरी', stock:50 },
+    { id:'apple-1kg', name:'सेब 1kg', mrp:140, price:120, discountPercent:10, offerPrice:126, unit:'किलो', category:'फल', stock:30 },
+    { id:'banana-1doz', name:'केला 1 दर्जन', mrp:60, price:55, discountPercent:0, offerPrice:55, unit:'दर्जन', category:'फल', stock:40 },
+    { id:'tomato-1kg', name:'टमाटर 1kg', mrp:40, price:38, discountPercent:0, offerPrice:38, unit:'किलो', category:'सब्जियां', stock:60 },
+    { id:'potato-1kg', name:'आलू 1kg', mrp:30, price:28, discountPercent:0, offerPrice:28, unit:'किलो', category:'सब्जियां', stock:80 },
+    { id:'onion-1kg', name:'प्याज 1kg', mrp:35, price:33, discountPercent:0, offerPrice:33, unit:'किलो', category:'सब्जियां', stock:60 },
+    { id:'masoor-1kg', name:'मसूर दाल 1kg', mrp:120, price:110, discountPercent:0, offerPrice:110, unit:'किलो', category:'अनाज', stock:40 },
+    { id:'moong-1kg', name:'मूंग दाल 1kg', mrp:150, price:140, discountPercent:0, offerPrice:140, unit:'किलो', category:'अनाज', stock:30 },
+    { id:'toor-1kg', name:'तुअर दाल 1kg', mrp:160, price:150, discountPercent:0, offerPrice:150, unit:'किलो', category:'अनाज', stock:20 },
+    { id:'namkeen-200g', name:'नमकीन 200g', mrp:30, price:28, discountPercent:0, offerPrice:28, unit:'पैक', category:'स्नैक्स', stock:50 },
+    { id:'biscuit-100g', name:'बिस्किट 100g', mrp:20, price:18, discountPercent:10, offerPrice:18, unit:'पैक', category:'स्नैक्स', stock:60 },
+    { id:'chips-100g', name:'चिप्स 100g', mrp:25, price:22, discountPercent:0, offerPrice:22, unit:'पैक', category:'स्नैक्स', stock:50 },
+    { id:'maggi-70g', name:'मैगी 70g', mrp:12, price:11, discountPercent:0, offerPrice:11, unit:'पैक', category:'स्नैक्स', stock:70 },
+    { id:'cola-500ml', name:'कोला 500ml', mrp:50, price:45, discountPercent:0, offerPrice:45, unit:'बोतल', category:'पेय', stock:40 },
+    { id:'water-1ltr', name:'बोतल पानी 1L', mrp:20, price:18, discountPercent:0, offerPrice:18, unit:'बोतल', category:'पेय', stock:100 },
+    { id:'soap-75g', name:'साबुन 75g', mrp:40, price:35, discountPercent:0, offerPrice:35, unit:'पीस', category:'अन्य', stock:60 },
+    { id:'shampoo-100ml', name:'शैम्पू 100ml', mrp:120, price:110, discountPercent:0, offerPrice:110, unit:'बोतल', category:'अन्य', stock:40 },
+    { id:'toothpaste-100g', name:'टूथपेस्ट 100g', mrp:80, price:75, discountPercent:0, offerPrice:75, unit:'पैक', category:'अन्य', stock:50 },
+    { id:'detergent-1kg', name:'डिटर्जेंट 1kg', mrp:200, price:185, discountPercent:0, offerPrice:185, unit:'पैक', category:'अन्य', stock:30 },
+    { id:'razor-1', name:'रेज़र 1pcs', mrp:50, price:45, discountPercent:0, offerPrice:45, unit:'पीस', category:'अन्य', stock:40 },
+    { id:'battery-aa', name:'बेटरी AA', mrp:30, price:28, discountPercent:0, offerPrice:28, unit:'पीस', category:'अन्य', stock:100 },
+    { id:'lighter', name:'लाइटर', mrp:20, price:18, discountPercent:0, offerPrice:18, unit:'पीस', category:'अन्य', stock:100 },
+    { id:'matchbox', name:'माचिस', mrp:10, price:9, discountPercent:0, offerPrice:9, unit:'पीस', category:'अन्य', stock:200 },
+    { id:'peanut-250g', name:'मूंगफली 250g', mrp:60, price:55, discountPercent:0, offerPrice:55, unit:'पैक', category:'स्नैक्स', stock:50 },
+    { id:'almond-250g', name:'बादाम 250g', mrp:300, price:280, discountPercent:0, offerPrice:280, unit:'पैक', category:'फल', stock:20 },
+    { id:'dates-250g', name:'खजूर 250g', mrp:180, price:170, discountPercent:0, offerPrice:170, unit:'पैक', category:'फल', stock:25 },
+    { id:'ginger-1kg', name:'अदरक 1kg', mrp:120, price:110, discountPercent:0, offerPrice:110, unit:'किलो', category:'सब्जियां', stock:30 },
+    { id:'garlic-1kg', name:'लहसुन 1kg', mrp:220, price:200, discountPercent:0, offerPrice:200, unit:'किलो', category:'सब्जियां', stock:20 },
+    { id:'lime-1kg', name:'निम्बू 1kg', mrp:80, price:70, discountPercent:0, offerPrice:70, unit:'किलो', category:'फल', stock:40 },
+    { id:'coriander-250g', name:'धनिया 250g', mrp:30, price:28, discountPercent:0, offerPrice:28, unit:'पैक', category:'सब्जियां', stock:80 }
+  ];
+
+  const batch = db.batch();
+  const col = db.collection('shops').doc(shopId).collection('items');
+  items.forEach(it=>{
+    const docRef = col.doc(it.id);
+    batch.set(docRef, it, {merge:true});
+  });
+  await batch.commit();
+  alert('Seed 50 items completed');
+})();`;
+document.getElementById('script').innerText = seedScript;
+</script>

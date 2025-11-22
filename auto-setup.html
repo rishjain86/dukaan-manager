@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><title>Auto Setup - Dukaan Manager</title></head>
+<body>
+<h3>Auto Setup</h3>
+<p>Paste your firebaseConfig into the <code>firebaseConfig</code> variable below, then click "Run Auto Setup".</p>
+<textarea id="cfg" style="width:100%;height:160px;">const firebaseConfig = {
+  "apiKey": "AIzaSyAomDsqeLOrXvnudqUsudnZWOphuqM0bvY",
+  "authDomain": "shopkeeper-99756.firebaseapp.com",
+  "projectId": "shopkeeper-99756",
+  "storageBucket": "shopkeeper-99756.firebasestorage.app",
+  "messagingSenderId": "786338847396",
+  "appId": "1:786338847396:web:c6e042952145780f8aa431",
+  "measurementId": "G-PCE1MM86YE"
+};</textarea><br/>
+<button id="run">Run Auto Setup</button>
+<pre id="out" style="background:#f4f4f4;padding:8px;"></pre>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script>
+document.getElementById('run').addEventListener('click', async function(){
+  try{
+    const cfgText = document.getElementById('cfg').value;
+    const cfg = eval("(" + cfgText + ")");
+    firebase.initializeApp(cfg);
+    const db = firebase.firestore();
+    const ownerUid = 'AdXfUF6kBzf0FagiQQdBreji1MP2';
+    const shopId = 'SHOP001';
+    await db.collection('shopUsers').doc(ownerUid).set({ shopId: shopId, role:'owner', phone:'9999999999', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await db.collection('shops').doc(shopId).set({ shopId: shopId, name:'श्री राधा जनरल स्टोर', ownerUid: ownerUid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    document.getElementById('out').innerText = 'Shop and shopUser created. Now run seed.html to add items.';
+  }catch(e){
+    document.getElementById('out').innerText = 'Error: '+e.message;
+  }
+});
+
+/* AUTO-RUN */
+<script>document.getElementById('run').click();</script>
+</body>
+</html>
