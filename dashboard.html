@@ -1,30 +1,53 @@
-<!DOCTYPE html><html lang="hi">
+<!DOCTYPE html>
+<html lang="hi">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dukaan Manager — Final Dashboard</title>  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">  <style>
-    body { background:#f8f9fa; padding:12px; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dukaan Manager — Dashboard</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    body { background: #f5f6fa; padding: 15px; }
     table th, table td { text-align:center; vertical-align:middle; }
-    .thumb-img { width:45px; height:45px; object-fit:cover; border-radius:6px; }
-    #photo-preview { width:90px; height:90px; object-fit:cover; border-radius:8px; border:1px solid #ddd; margin-bottom:10px; display:none; }
-  </style></head>
-<body><nav class="navbar navbar-dark bg-primary mb-3">
+    .thumb-img { width:55px; height:55px; object-fit:cover; border-radius:6px; }
+    #photo-preview { width:110px; height:110px; object-fit:cover; border-radius:8px; border:1px solid #ccc; display:none; margin-bottom:10px; }
+    .low-stock { background:#fff2f2; }
+    .stat-box { padding:15px; border-radius:10px; font-weight:bold; color:white; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-primary mb-3">
   <div class="container-fluid">
     <span class="navbar-brand">📦 Dukaan Manager</span>
     <button onclick="logout()" class="btn btn-light btn-sm">Logout</button>
   </div>
-</nav><div class="container">
+</nav>
+
+<div class="container mb-4">
+  <div class="row g-3">
+    <div class="col-6 col-md-3"><div class="stat-box bg-success"><h4 id="stat-items">0</h4>कुल आइटम</div></div>
+    <div class="col-6 col-md-3"><div class="stat-box bg-danger"><h4 id="stat-low">0</h4>Low Stock</div></div>
+    <div class="col-6 col-md-3"><div class="stat-box bg-warning text-dark"><h4 id="stat-cat">0</h4>श्रेणियाँ</div></div>
+    <div class="col-6 col-md-3"><div class="stat-box bg-info"><h4 id="stat-active">0</h4>Active Items</div></div>
+  </div>
+</div>
+
+<div class="container">
   <div class="d-flex justify-content-between align-items-center mb-2">
-    <h4>📦 इन्वेंटरी</h4>
-    <button class="btn btn-success" onclick="openModal()">+ नया आइटम जोड़ें</button>
-  </div>  <div class="table-responsive">
+    <h4>📦 Inventory</h4>
+    <button class="btn btn-success" onclick="openModal()">+ नया आइटम</button>
+  </div>
+
+  <div class="table-responsive">
     <table class="table table-bordered table-hover">
       <thead class="table-light">
         <tr>
           <th>फोटो</th>
           <th>नाम</th>
           <th>एमआरपी</th>
-          <th>डिस्काउंट %</th>
+          <th>डिस्काउंट</th>
           <th>ऑफर प्राइस</th>
           <th>स्टॉक</th>
           <th>इकाई</th>
@@ -34,142 +57,267 @@
       </thead>
       <tbody id="inventory-table"></tbody>
     </table>
-  </div>  <div id="status" class="small text-muted mt-2"></div>
-</div><!-- Modal --><div class="modal fade" id="itemModal" tabindex="-1">
- <div class="modal-dialog modal-lg">
-  <div class="modal-content">
-   <div class="modal-header">
-    <h5 id="modal-title" class="modal-title">नया आइटम</h5>
-    <button class="btn-close" data-bs-dismiss="modal"></button>
-   </div>
-   <div class="modal-body"><img id="photo-preview" />
+  </div>
 
-<input type="hidden" id="item-id" />
-
-<div class="mb-2">
-  <label class="form-label">नाम</label>
-  <input id="item-name" class="form-control">
+  <div id="status" class="small text-muted mt-2"></div>
 </div>
 
-<div class="row">
-  <div class="col-md-4 mb-2">
-    <label class="form-label">कीमत (₹)</label>
-    <input id="item-price" type="number" class="form-control">
-  </div>
-  <div class="col-md-4 mb-2">
-    <label class="form-label">डिस्काउंट (%)</label>
-    <input id="item-discount" type="number" class="form-control">
-  </div>
-  <div class="col-md-4 mb-2">
-    <label class="form-label">ऑफर प्राइस (₹)</label>
-    <input id="item-offerprice" type="number" class="form-control">
+<div class="modal fade" id="itemModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 id="modal-title" class="modal-title">आइटम जोड़ें</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <img id="photo-preview" />
+        <input type="hidden" id="item-id" />
+
+        <label class="form-label">नाम</label>
+        <input id="item-name" class="form-control mb-2">
+
+        <div class="row mb-2">
+          <div class="col-md-4">
+            <label class="form-label">कीमत (₹)</label>
+            <input id="item-price" type="number" class="form-control" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">डिस्काउंट (%)</label>
+            <input id="item-discount" type="number" class="form-control" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">ऑफर प्राइस (₹)</label>
+            <input id="item-offerprice" type="number" class="form-control" />
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-md-4">
+            <label class="form-label">स्टॉक</label>
+            <input id="item-stock" type="number" class="form-control" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">इकाई</label>
+            <input id="item-unit" class="form-control" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">श्रेणी</label>
+            <input id="item-category" class="form-control" />
+          </div>
+        </div>
+
+        <label class="form-label">फोटो</label>
+        <input id="item-photo" type="file" accept="image/*" class="form-control" />
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">रद्द</button>
+        <button class="btn btn-primary" onclick="saveItem()">सेव</button>
+      </div>
+
+    </div>
   </div>
 </div>
 
-<div class="row">
-  <div class="col-md-4 mb-2">
-    <label class="form-label">स्टॉक</label>
-    <input id="item-stock" type="number" class="form-control">
-  </div>
-  <div class="col-md-4 mb-2">
-    <label class="form-label">इकाई</label>
-    <input id="item-unit" class="form-control">
-  </div>
-  <div class="col-md-4 mb-2">
-    <label class="form-label">श्रेणी</label>
-    <input id="item-category" class="form-control">
-  </div>
-</div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<div class="mb-2">
-  <label class="form-label">फोटो</label>
-  <input id="item-photo" type="file" accept="image/*" class="form-control">
-</div>
+<script>
 
-   </div>
-   <div class="modal-footer">
-    <button class="btn btn-secondary" data-bs-dismiss="modal">रद्द</button>
-    <button class="btn btn-primary" onclick="saveItem()">सेव करें</button>
-   </div>
-  </div>
- </div>
-</div><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><script>
-// Firebase Config
-const firebaseConfig = {
-    apiKey: "AIzaSyAomDsqeLOrXvnudqUsudnZWOphuqM0bvY",
-    authDomain: "shopkeeper-99756.firebaseapp.com",
-    projectId: "shopkeeper-99756",
-    storageBucket: "shopkeeper-99756.firebasestorage.app",
-    messagingSenderId: "786338847396",
-    appId: "1:786338847396:web:c6e042952145780f8aa431",
-    measurementId: "G-PCE1MM86YE"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// Cloudinary
-const CLOUDINARY_CLOUD = "darmz4wsz";
-const CLOUDINARY_UPLOAD_PRESET = "emotional_preset";
-const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
-
-let shopId = null;
-let inventoryUnsub = null;
-
-function setStatus(msg,type='secondary'){
-  const el=document.getElementById('status');
-  el.textContent=msg;
-  el.className=`small text-${type}`;
-}
-
-// Photo Preview
-const photoInput=document.getElementById('item-photo');
-photoInput.addEventListener('change',e=>{
-  const file=e.target.files[0];
-  if(!file) return;
-  const preview=document.getElementById('photo-preview');
-  preview.src=URL.createObjectURL(file);
-  preview.style.display='block';
+firebase.initializeApp({
+  apiKey: "AIzaSyAomDsqeLOrXvnudqUsudnZWOphuqM0bvY",
+  authDomain: "shopkeeper-99756.firebaseapp.com",
+  projectId: "shopkeeper-99756",
+  storageBucket: "shopkeeper-99756.firebasestorage.app",
+  messagingSenderId: "786338847396",
+  appId: "1:786338847396:web:c6e042952145780f8aa431"
 });
 
-function getThumb(url){ return url || 'https://via.placeholder.com/45'; }
+const auth = firebase.auth();
+const db = firebase.firestore();
+let shopId = "SHOP001";
+let inventoryUnsub = null;
 
-// Load Inventory
+const CLOUDINARY_CLOUD = "darmz4wsz";
+const CLOUDINARY_PRESET = "emotional_preset";
+const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
+
+function setStatus(msg, type='secondary'){
+  const s = document.getElementById('status');
+  s.textContent = msg;
+  s.className = `small text-${type}`;
+}
+
+const photoInput = document.getElementById('item-photo');
+photoInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const preview = document.getElementById('photo-preview');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+});
+
+function getThumb(url){ return url || 'https://via.placeholder.com/55'; }
+
 function startInventoryListener(){
-  inventoryUnsub = db.collection('shops').doc(shopId).collection('items').orderBy('name')
-  .onSnapshot(snap=>{
-    let html='';
-    snap.forEach(doc=>{
-      const i=doc.data();
-      const offer = i.offerPrice ?? i.price;
-      html+=`<tr>
-        <td><img src="${getThumb(i.imageUrl)}" class="thumb-img"></td>
-        <td>${i.name}</td>
-        <td>₹${i.price}</td>
-        <td>${i.discountPercent||0}%</td>
-        <td>₹${offer}</td>
-        <td>${i.stock}</td>
-        <td>${i.unit}</td>
-        <td>${i.category}</td>
-        <td>
-          <button class='btn btn-warning btn-sm me-1' onclick="editItem('${doc.id}')">✏️</button>
-          <button class='btn btn-danger btn-sm' onclick="deleteItem('${doc.id}')">🗑</button>
-        </td>
-      </tr>`;
+  inventoryUnsub = db
+    .collection('shops').doc(shopId).collection('items')
+    .orderBy('name')
+    .onSnapshot(snap => {
+
+      let html = "";
+      let lowStock = 0;
+      let categories = new Set();
+      let active = 0;
+
+      snap.forEach(doc => {
+        const i = doc.data();
+        categories.add(i.category);
+        if(i.status !== 'inactive') active++;
+        if(i.stock <= (i.minStock || 5)) lowStock++;
+
+        const offer = i.offerPrice ?? i.price;
+
+        html += `
+          <tr class="${i.stock <= (i.minStock || 5) ? 'low-stock' : ''}">
+            <td><img src="${getThumb(i.imageUrl)}" class="thumb-img"></td>
+            <td>${i.name}</td>
+            <td>₹${i.price}</td>
+            <td>${i.discountPercent || 0}%</td>
+            <td>₹${offer}</td>
+            <td>${i.stock}</td>
+            <td>${i.unit}</td>
+            <td>${i.category}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" onclick="editItem('${doc.id}')">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteItem('${doc.id}')">🗑️</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("inventory-table").innerHTML = html;
+
+      document.getElementById("stat-items").innerText = snap.size;
+      document.getElementById("stat-low").innerText = lowStock;
+      document.getElementById("stat-active").innerText = active;
+      document.getElementById("stat-cat").innerText = categories.size;
+
+      setStatus("Inventory loaded", "success");
+    }, err => {
+      console.error(err);
+      setStatus("Error: " + err.message, "danger");
     });
-    document.getElementById('inventory-table').innerHTML=html;
-    setStatus(`Loaded ${snap.size} items`,'success');
-  });
 }
 
-// Open Modal
+async function uploadPhoto(file){
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("upload_preset", CLOUDINARY_PRESET);
+
+  const res = await fetch(CLOUDINARY_URL, { method:"POST", body:fd });
+  const data = await res.json();
+  return data.secure_url;
+}
+
 function openModal(){
-  document.getElementById('modal-title').textContent='नया आइटम';
-  ['item-id','item-name','item-price','item-stock','item-unit','item-category','item-discount','item-offerprice'].forEach(x=>document.getElementById(x).value='');
-  document.getElementById('item-photo').value='';
-  document.getElementById('photo-preview').style.display='none';
-  new bootstrap.Modal(document.getElementById('itemModal')).show();
+  document.getElementById("modal-title").innerText = "नया आइटम";
+  document.getElementById("item-id").value = "";
+  document.getElementById("item-name").value = "";
+  document.getElementById("item-price").value = "";
+  document.getElementById("item-discount").value = "";
+  document.getElementById("item-offerprice").value = "";
+  document.getElementById("item-stock").value = "";
+  document.getElementById("item-unit").value = "";
+  document.getElementById("item-category").value = "";
+  document.getElementById("item-photo").value = "";
+  document.getElementById("photo-preview").style.display="none";
+
+  new bootstrap.Modal(document.getElementById("itemModal")).show();
 }
 
-// Edit Item
-async function
+async function editItem(id){
+  const doc = await db.collection("shops").doc(shopId).collection("items").doc(id).get();
+  const i = doc.data();
+
+  document.getElementById("modal-title").innerText = "आइटम संपादन";
+  document.getElementById("item-id").value = id;
+  document.getElementById("item-name").value = i.name;
+  document.getElementById("item-price").value = i.price;
+  document.getElementById("item-discount").value = i.discountPercent || 0;
+  document.getElementById("item-offerprice").value = i.offerPrice ?? "";
+  document.getElementById("item-stock").value = i.stock;
+  document.getElementById("item-unit").value = i.unit;
+  document.getElementById("item-category").value = i.category;
+
+  if(i.imageUrl){
+    const preview=document.getElementById("photo-preview");
+    preview.src=i.imageUrl;
+    preview.style.display="block";
+  }
+
+  new bootstrap.Modal(document.getElementById("itemModal")).show();
+}
+
+async function saveItem(){
+  const id = document.getElementById("item-id").value;
+  const name = document.getElementById("item-name").value;
+  const price = Number(document.getElementById("item-price").value);
+  const discount = Number(document.getElementById("item-discount").value);
+  const offerPrice = Number(document.getElementById("item-offerprice").value);
+  const stock = Number(document.getElementById("item-stock").value);
+  const unit = document.getElementById("item-unit").value;
+  const category = document.getElementById("item-category").value;
+
+  let imageUrl = null;
+  const file = document.getElementById("item-photo").files[0];
+  if(file) imageUrl = await uploadPhoto(file);
+
+  const data = {
+    name, price,
+    discountPercent: discount,
+    offerPrice: offerPrice || price,
+    stock, unit, category,
+    status:"active",
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  if(imageUrl) data.imageUrl = imageUrl;
+
+  const ref = db.collection("shops").doc(shopId).collection("items");
+
+  if(id){
+    await ref.doc(id).update(data);
+  } else {
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    await ref.add(data);
+  }
+
+  setStatus("Item saved", "success");
+  bootstrap.Modal.getInstance(document.getElementById("itemModal")).hide();
+}
+
+function deleteItem(id){
+  if(!confirm("हटाएँ?")) return;
+  db.collection("shops").doc(shopId).collection("items").doc(id).delete();
+}
+
+function logout(){
+  auth.signOut().then(()=>window.location.href="index.html");
+}
+
+auth.onAuthStateChanged(u=>{
+  if(!u) window.location.href="index.html";
+  startInventoryListener();
+});
+
+</script>
+
+</body>
+</html>
