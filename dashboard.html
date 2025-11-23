@@ -8,12 +8,15 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 
   <style>
-    body { background: #f5f6fa; padding: 15px; }
+    body { background: #f5f6fa; padding: 12px; }
     table th, table td { text-align:center; vertical-align:middle; }
     .thumb-img { width:55px; height:55px; object-fit:cover; border-radius:6px; }
     #photo-preview { width:110px; height:110px; object-fit:cover; border-radius:8px; border:1px solid #ccc; display:none; margin-bottom:10px; }
-    .low-stock { background:#fff2f2; }
-    .stat-box { padding:15px; border-radius:10px; font-weight:bold; color:white; }
+    .low-stock { background:#fff6f6; }
+    .stat-box { padding:12px; border-radius:10px; font-weight:600; color:white; text-align:center; }
+    .small-muted { color:#6c757d; }
+    .modal-lg { max-width:1000px; }
+    .nowrap { white-space:nowrap; }
   </style>
 </head>
 <body>
@@ -21,23 +24,29 @@
 <nav class="navbar navbar-dark bg-primary mb-3">
   <div class="container-fluid">
     <span class="navbar-brand">📦 Dukaan Manager</span>
-    <button onclick="logout()" class="btn btn-light btn-sm">Logout</button>
+    <div class="d-flex gap-2">
+      <button id="btn-backup" class="btn btn-light btn-sm d-none d-md-inline">Backup</button>
+      <button onclick="logout()" class="btn btn-light btn-sm">Logout</button>
+    </div>
   </div>
 </nav>
 
 <div class="container mb-4">
   <div class="row g-3">
-    <div class="col-6 col-md-3"><div class="stat-box bg-success"><h4 id="stat-items">0</h4>कुल आइटम</div></div>
-    <div class="col-6 col-md-3"><div class="stat-box bg-danger"><h4 id="stat-low">0</h4>Low Stock</div></div>
-    <div class="col-6 col-md-3"><div class="stat-box bg-warning text-dark"><h4 id="stat-cat">0</h4>श्रेणियाँ</div></div>
-    <div class="col-6 col-md-3"><div class="stat-box bg-info"><h4 id="stat-active">0</h4>Active Items</div></div>
+    <div class="col-6 col-md-3"><div class="stat-box bg-success"><div id="stat-items">0</div><small class="d-block">कुल आइटम</small></div></div>
+    <div class="col-6 col-md-3"><div class="stat-box bg-danger"><div id="stat-low">0</div><small class="d-block">Low Stock</small></div></div>
+    <div class="col-6 col-md-3"><div class="stat-box bg-warning text-dark"><div id="stat-cat">0</div><small class="d-block">श्रेणियाँ</small></div></div>
+    <div class="col-6 col-md-3"><div class="stat-box bg-info"><div id="stat-active">0</div><small class="d-block">Active Items</small></div></div>
   </div>
 </div>
 
 <div class="container">
   <div class="d-flex justify-content-between align-items-center mb-2">
-    <h4>📦 Inventory</h4>
-    <button class="btn btn-success" onclick="openModal()">+ नया आइटम</button>
+    <h4 class="mb-0">📦 Inventory</h4>
+    <div>
+      <button class="btn btn-outline-primary me-2" id="btn-open-orders">ऑर्डर देखें</button>
+      <button class="btn btn-success" onclick="openModal()">+ नया आइटम</button>
+    </div>
   </div>
 
   <div class="table-responsive">
@@ -62,6 +71,51 @@
   <div id="status" class="small text-muted mt-2"></div>
 </div>
 
+<!-- ORDERS MODAL -->
+<div class="modal fade" id="ordersModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">लाइव ऑर्डर</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div id="orders-status" class="small text-muted mb-2"></div>
+        <div class="table-responsive">
+          <table class="table table-hover table-bordered">
+            <thead class="table-light">
+              <tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Amount</th><th>Payment</th><th>Status</th><th>Time</th><th>Action</th></tr>
+            </thead>
+            <tbody id="orders-table"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="modal fade" id="orderDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Order Details</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div id="order-detail-content"></div>
+        <div class="mt-3">
+          <label class="form-label">Transaction ID / UTR</label>
+          <input id="order-utr" class="form-control mb-2" />
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-success" id="btn-accept">Accept</button>
+            <button class="btn btn-sm btn-warning" id="btn-packed">Packed</button>
+            <button class="btn btn-sm btn-info" id="btn-ready">Ready</button>
+            <button class="btn btn-sm btn-primary" id="btn-delivered">Delivered</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ITEM MODAL -->
 <div class="modal fade" id="itemModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -72,7 +126,6 @@
       </div>
 
       <div class="modal-body">
-
         <img id="photo-preview" />
         <input type="hidden" id="item-id" />
 
@@ -80,37 +133,29 @@
         <input id="item-name" class="form-control mb-2">
 
         <div class="row mb-2">
-          <div class="col-md-4">
-            <label class="form-label">कीमत (₹)</label>
-            <input id="item-price" type="number" class="form-control" />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">डिस्काउंट (%)</label>
-            <input id="item-discount" type="number" class="form-control" />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">ऑफर प्राइस (₹)</label>
-            <input id="item-offerprice" type="number" class="form-control" />
-          </div>
+          <div class="col-md-4"><label class="form-label">कीमत (₹)</label><input id="item-price" type="number" class="form-control" /></div>
+          <div class="col-md-4"><label class="form-label">डिस्काउंट (%)</label><input id="item-discount" type="number" class="form-control" /></div>
+          <div class="col-md-4"><label class="form-label">ऑफर प्राइस (₹)</label><input id="item-offerprice" type="number" class="form-control" /></div>
         </div>
 
         <div class="row mb-2">
-          <div class="col-md-4">
-            <label class="form-label">स्टॉक</label>
-            <input id="item-stock" type="number" class="form-control" />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">इकाई</label>
-            <input id="item-unit" class="form-control" />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">श्रेणी</label>
-            <input id="item-category" class="form-control" />
-          </div>
+          <div class="col-md-4"><label class="form-label">स्टॉक</label><input id="item-stock" type="number" class="form-control" /></div>
+          <div class="col-md-4"><label class="form-label">न्यूनतम स्टॉक</label><input id="item-min-stock" type="number" class="form-control" placeholder="5" /></div>
+          <div class="col-md-4"><label class="form-label">इकाई</label><input id="item-unit" class="form-control" /></div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-md-6"><label class="form-label">श्रेणी</label><input id="item-category" class="form-control" /></div>
+          <div class="col-md-6"><label class="form-label">विवरण</label><input id="item-description" class="form-control" /></div>
         </div>
 
         <label class="form-label">फोटो</label>
         <input id="item-photo" type="file" accept="image/*" class="form-control" />
+
+        <div class="form-check form-switch mt-2">
+          <input class="form-check-input" type="checkbox" id="item-active" checked>
+          <label class="form-check-label" for="item-active">सक्रिय</label>
+        </div>
 
       </div>
 
@@ -127,197 +172,368 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-
-firebase.initializeApp({
+  <script>
+/* ============================
+   FIREBASE CONFIG + INIT
+============================ */
+const firebaseConfig = {
   apiKey: "AIzaSyAomDsqeLOrXvnudqUsudnZWOphuqM0bvY",
   authDomain: "shopkeeper-99756.firebaseapp.com",
   projectId: "shopkeeper-99756",
   storageBucket: "shopkeeper-99756.firebasestorage.app",
   messagingSenderId: "786338847396",
-  appId: "1:786338847396:web:c6e042952145780f8aa431"
-});
+  appId: "1:786338847396:web:c6e042952145780f8aa431",
+  measurementId: "G-PCE1MM86YE"
+};
 
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-let shopId = "SHOP001";
-let inventoryUnsub = null;
 
+/* ============================
+   CLOUDINARY CONFIG
+============================ */
 const CLOUDINARY_CLOUD = "darmz4wsz";
-const CLOUDINARY_PRESET = "emotional_preset";
+const CLOUDINARY_UPLOAD_PRESET = "emotional_preset";
 const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
 
-function setStatus(msg, type='secondary'){
-  const s = document.getElementById('status');
+/* ============================
+   GLOBAL VARS
+============================ */
+let shopId = "SHOP001";
+let inventoryUnsub = null;
+let ordersUnsub = null;
+
+/* ============================
+   STATUS MESSAGE
+============================ */
+function setStatus(msg, type="secondary") {
+  const s = document.getElementById("status");
   s.textContent = msg;
   s.className = `small text-${type}`;
 }
 
-const photoInput = document.getElementById('item-photo');
-photoInput.addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const preview = document.getElementById('photo-preview');
-  preview.src = URL.createObjectURL(file);
-  preview.style.display = 'block';
-});
+/* ============================
+   THUMBNAIL IMAGE
+============================ */
+function getThumb(url) {
+  return url ? url : "https://via.placeholder.com/55?text=IMG";
+}
 
-function getThumb(url){ return url || 'https://via.placeholder.com/55'; }
+/* ============================
+   INVENTORY LIVE LISTENER
+============================ */
+function startInventoryListener() {
+  if (!inventoryUnsub) {}
 
-function startInventoryListener(){
-  inventoryUnsub = db
-    .collection('shops').doc(shopId).collection('items')
-    .orderBy('name')
-    .onSnapshot(snap => {
-
+  inventoryUnsub = db.collection("shops")
+    .doc(shopId)
+    .collection("items")
+    .orderBy("name")
+    .onSnapshot(snapshot => {
       let html = "";
-      let lowStock = 0;
       let categories = new Set();
+      let lowStock = 0;
       let active = 0;
 
-      snap.forEach(doc => {
-        const i = doc.data();
-        categories.add(i.category);
-        if(i.status !== 'inactive') active++;
-        if(i.stock <= (i.minStock || 5)) lowStock++;
-
-        const offer = i.offerPrice ?? i.price;
+      snapshot.forEach(doc => {
+        const x = doc.data();
+        if (x.category) categories.add(x.category);
+        if (x.stock < (x.minStock || 5)) lowStock++;
+        if (x.status !== "inactive") active++;
 
         html += `
-          <tr class="${i.stock <= (i.minStock || 5) ? 'low-stock' : ''}">
-            <td><img src="${getThumb(i.imageUrl)}" class="thumb-img"></td>
-            <td>${i.name}</td>
-            <td>₹${i.price}</td>
-            <td>${i.discountPercent || 0}%</td>
-            <td>₹${offer}</td>
-            <td>${i.stock}</td>
-            <td>${i.unit}</td>
-            <td>${i.category}</td>
-            <td>
-              <button class="btn btn-warning btn-sm" onclick="editItem('${doc.id}')">✏️</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteItem('${doc.id}')">🗑️</button>
+          <tr class="${x.stock < (x.minStock || 5) ? "low-stock" : ""}">
+            <td><img src="${getThumb(x.imageUrl)}" class="thumb-img" /></td>
+            <td>${x.name}</td>
+            <td>₹${x.price}</td>
+            <td>${x.discountPercent || 0}%</td>
+            <td>₹${x.offerPrice || x.price}</td>
+            <td>${x.stock}</td>
+            <td>${x.unit}</td>
+            <td>${x.category}</td>
+            <td class="nowrap">
+              <button class="btn btn-sm btn-warning me-1" onclick="editItem('${doc.id}')">✏️</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteItem('${doc.id}')">🗑️</button>
             </td>
           </tr>
         `;
       });
 
       document.getElementById("inventory-table").innerHTML = html;
+      document.getElementById("stat-items").textContent = snapshot.size;
+      document.getElementById("stat-cat").textContent = categories.size;
+      document.getElementById("stat-low").textContent = lowStock;
+      document.getElementById("stat-active").textContent = active;
 
-      document.getElementById("stat-items").innerText = snap.size;
-      document.getElementById("stat-low").innerText = lowStock;
-      document.getElementById("stat-active").innerText = active;
-      document.getElementById("stat-cat").innerText = categories.size;
-
-      setStatus("Inventory loaded", "success");
-    }, err => {
-      console.error(err);
-      setStatus("Error: " + err.message, "danger");
+      setStatus("Inventory Loaded", "success");
     });
 }
 
-async function uploadPhoto(file){
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("upload_preset", CLOUDINARY_PRESET);
-
-  const res = await fetch(CLOUDINARY_URL, { method:"POST", body:fd });
-  const data = await res.json();
-  return data.secure_url;
-}
-
-function openModal(){
+/* ============================
+   OPEN ITEM MODAL
+============================ */
+function openModal() {
   document.getElementById("modal-title").innerText = "नया आइटम";
+
   document.getElementById("item-id").value = "";
   document.getElementById("item-name").value = "";
   document.getElementById("item-price").value = "";
   document.getElementById("item-discount").value = "";
   document.getElementById("item-offerprice").value = "";
   document.getElementById("item-stock").value = "";
+  document.getElementById("item-min-stock").value = "";
   document.getElementById("item-unit").value = "";
   document.getElementById("item-category").value = "";
+  document.getElementById("item-description").value = "";
+  document.getElementById("item-active").checked = true;
+
+  const prev = document.getElementById("photo-preview");
+  prev.style.display = "none";
+  prev.src = "";
+
   document.getElementById("item-photo").value = "";
-  document.getElementById("photo-preview").style.display="none";
 
   new bootstrap.Modal(document.getElementById("itemModal")).show();
 }
 
-async function editItem(id){
-  const doc = await db.collection("shops").doc(shopId).collection("items").doc(id).get();
-  const i = doc.data();
+/* ============================
+   EDIT ITEM
+============================ */
+async function editItem(id) {
+  const snap = await db.collection("shops").doc(shopId).collection("items").doc(id).get();
+  if (!snap.exists) return;
 
+  const x = snap.data();
   document.getElementById("modal-title").innerText = "आइटम संपादन";
-  document.getElementById("item-id").value = id;
-  document.getElementById("item-name").value = i.name;
-  document.getElementById("item-price").value = i.price;
-  document.getElementById("item-discount").value = i.discountPercent || 0;
-  document.getElementById("item-offerprice").value = i.offerPrice ?? "";
-  document.getElementById("item-stock").value = i.stock;
-  document.getElementById("item-unit").value = i.unit;
-  document.getElementById("item-category").value = i.category;
 
-  if(i.imageUrl){
-    const preview=document.getElementById("photo-preview");
-    preview.src=i.imageUrl;
-    preview.style.display="block";
+  document.getElementById("item-id").value = id;
+  document.getElementById("item-name").value = x.name;
+  document.getElementById("item-price").value = x.price;
+  document.getElementById("item-discount").value = x.discountPercent || 0;
+  document.getElementById("item-offerprice").value = x.offerPrice || "";
+  document.getElementById("item-stock").value = x.stock;
+  document.getElementById("item-min-stock").value = x.minStock || 5;
+  document.getElementById("item-unit").value = x.unit;
+  document.getElementById("item-category").value = x.category;
+  document.getElementById("item-description").value = x.description || "";
+  document.getElementById("item-active").checked = x.status !== "inactive";
+
+  const prev = document.getElementById("photo-preview");
+  if (x.imageUrl) {
+    prev.src = x.imageUrl;
+    prev.style.display = "block";
+  } else {
+    prev.style.display = "none";
   }
 
   new bootstrap.Modal(document.getElementById("itemModal")).show();
 }
 
-async function saveItem(){
+/* ============================
+   CLOUDINARY UPLOAD
+============================ */
+async function uploadToCloudinary(file) {
+  if (!file) return null;
+
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+  const res = await fetch(CLOUDINARY_URL, {
+    method: "POST",
+    body: fd
+  });
+
+  const data = await res.json();
+  return data.secure_url || data.url || null;
+}
+
+/* ============================
+   SAVE ITEM
+============================ */
+async function saveItem() {
   const id = document.getElementById("item-id").value;
-  const name = document.getElementById("item-name").value;
+  const name = document.getElementById("item-name").value.trim();
   const price = Number(document.getElementById("item-price").value);
   const discount = Number(document.getElementById("item-discount").value);
-  const offerPrice = Number(document.getElementById("item-offerprice").value);
+  const offer = Number(document.getElementById("item-offerprice").value);
   const stock = Number(document.getElementById("item-stock").value);
-  const unit = document.getElementById("item-unit").value;
-  const category = document.getElementById("item-category").value;
+  const minStock = Number(document.getElementById("item-min-stock").value);
+  const unit = document.getElementById("item-unit").value.trim();
+  const category = document.getElementById("item-category").value.trim();
+  const desc = document.getElementById("item-description").value.trim();
+  const active = document.getElementById("item-active").checked;
+  const file = document.getElementById("item-photo").files[0];
+
+  if (!name) return alert("नाम आवश्यक है");
+
+  setStatus("Saving item...");
 
   let imageUrl = null;
-  const file = document.getElementById("item-photo").files[0];
-  if(file) imageUrl = await uploadPhoto(file);
-
-  const data = {
-    name, price,
-    discountPercent: discount,
-    offerPrice: offerPrice || price,
-    stock, unit, category,
-    status:"active",
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  if(imageUrl) data.imageUrl = imageUrl;
+  if (file) imageUrl = await uploadToCloudinary(file);
 
   const ref = db.collection("shops").doc(shopId).collection("items");
+  const data = {
+    name,
+    price,
+    discountPercent: discount || 0,
+    offerPrice: offer || price,
+    stock,
+    minStock: minStock || 5,
+    unit,
+    category,
+    description: desc,
+    status: active ? "active" : "inactive",
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if (imageUrl) data.imageUrl = imageUrl;
 
-  if(id){
-    await ref.doc(id).update(data);
-  } else {
-    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-    await ref.add(data);
-  }
+  if (id) await ref.doc(id).update(data); 
+  else await ref.add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
 
-  setStatus("Item saved", "success");
+  setStatus("Saved!", "success");
   bootstrap.Modal.getInstance(document.getElementById("itemModal")).hide();
 }
 
-function deleteItem(id){
-  if(!confirm("हटाएँ?")) return;
+/* ============================
+   DELETE ITEM
+============================ */
+function deleteItem(id) {
+  if (!confirm("आइटम हटाएं?")) return;
   db.collection("shops").doc(shopId).collection("items").doc(id).delete();
 }
-
-function logout(){
-  auth.signOut().then(()=>window.location.href="index.html");
-}
-
-auth.onAuthStateChanged(u=>{
-  if(!u) window.location.href="index.html";
-  startInventoryListener();
+    /* ============================
+   ORDERS: listener, UI, status updates
+============================ */
+document.getElementById('btn-open-orders').addEventListener('click', ()=> {
+  new bootstrap.Modal(document.getElementById('ordersModal')).show();
 });
 
-</script>
+function startOrdersListener(){
+  if(ordersUnsub) ordersUnsub();
+  ordersUnsub = db.collection('shops').doc(shopId).collection('orders').orderBy('createdAt','desc')
+    .onSnapshot(snap=>{
+      const tbody = document.getElementById('orders-table');
+      tbody.innerHTML = '';
+      let count = 0;
+      snap.forEach(doc=>{
+        const o = doc.data(); const id = doc.id;
+        const itemsText = (o.items || []).map(it=>`${it.name} x${it.qty}`).join('<br>') || (o.itemsText||'—');
+        const payment = o.paymentMethod || o.paymentType || 'COD';
+        const status = o.status || 'new';
+        const time = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleString() : (o.createdAt||'');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="nowrap">${id}</td>
+          <td class="text-start">${o.customerName||o.phone||'—'}</td>
+          <td class="text-start">${itemsText}</td>
+          <td class="nowrap">₹${o.amount||o.total||0}</td>
+          <td>${payment}${o.txnId?('<br/><small>Txn: '+o.txnId+'</small>'):''}</td>
+          <td><span class="badge ${status==='delivered'?'bg-success':status==='ready'?'bg-info':status==='packed'?'bg-warning':'bg-secondary'}">${status}</span></td>
+          <td class="nowrap">${time}</td>
+          <td><button class="btn btn-sm btn-outline-primary" onclick="openOrderDetail('${id}')">देखें</button></td>
+        `;
+        tbody.appendChild(tr);
+        count++;
+      });
+      document.getElementById('orders-status').innerText = `Total orders: ${count}`;
+      setStatus('Orders loaded','success');
+    }, err => { console.error('orders listener', err); setStatus('Error loading orders: '+err.message,'danger'); });
+}
 
+async function openOrderDetail(orderId){
+  try{
+    const ref = db.collection('shops').doc(shopId).collection('orders').doc(orderId);
+    const snap = await ref.get();
+    if(!snap.exists){ alert('Order missing'); return; }
+    const o = snap.data();
+    const content = document.getElementById('order-detail-content');
+    const itemsHtml = (o.items || []).map(it=>`<div>${it.name} <small> x${it.qty}</small> ₹${it.price||''}</div>`).join('') || (o.itemsText||'—');
+    content.innerHTML = `
+      <div><strong>Order:</strong> ${orderId}</div>
+      <div><strong>Customer:</strong> ${o.customerName||o.phone||'—'}</div>
+      <div class="mt-2"><strong>Items:</strong><div>${itemsHtml}</div></div>
+      <div class="mt-2"><strong>Amount:</strong> ₹${o.amount||o.total||0}</div>
+      <div class="mt-2"><strong>Payment:</strong> ${o.paymentMethod||o.paymentType||'COD'}</div>
+      <div class="mt-2"><strong>Notes:</strong> ${o.notes||'—'}</div>
+    `;
+    document.getElementById('order-utr').value = o.txnId || o.utr || '';
+    const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+    modal.show();
+
+    ['btn-accept','btn-packed','btn-ready','btn-delivered'].forEach(id=>{
+      const old = document.getElementById(id);
+      if(!old) return;
+      const clone = old.cloneNode(true);
+      old.parentNode.replaceChild(clone, old);
+    });
+
+    const handler = status => async () => {
+      const utr = document.getElementById('order-utr').value.trim() || null;
+      await updateOrderStatus(orderId, status, utr);
+      modal.hide();
+    };
+
+    document.getElementById('btn-accept').addEventListener('click', handler('accepted'));
+    document.getElementById('btn-packed').addEventListener('click', handler('packed'));
+    document.getElementById('btn-ready').addEventListener('click', handler('ready'));
+    document.getElementById('btn-delivered').addEventListener('click', handler('delivered'));
+
+  }catch(e){ console.error(e); alert('Error: '+e.message); }
+}
+
+async function updateOrderStatus(orderId, status, txnId=null){
+  const ref = db.collection('shops').doc(shopId).collection('orders').doc(orderId);
+  const payload = {
+    status,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    history: firebase.firestore.FieldValue.arrayUnion({ status, ts: firebase.firestore.FieldValue.serverTimestamp() })
+  };
+  if(txnId) payload.txnId = txnId;
+  await ref.update(payload);
+  db.collection('shops').doc(shopId).collection('notifications').add({
+    type:'order-status', orderId, status, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(()=>{});
+}
+
+/* ============================
+   AUTH + STARTUP
+============================ */
+auth.onAuthStateChanged(async user=>{
+  if(!user){
+    try{ window.location.href = 'index.html'; }catch(e){}
+    return;
+  }
+  // resolve shopId from localStorage or shopUsers doc
+  try{
+    const ls = localStorage.getItem('shopId');
+    if(ls) shopId = ls;
+    else {
+      const su = await db.collection('shopUsers').doc(user.uid).get();
+      if(su.exists && su.data().shopId) shopId = su.data().shopId;
+      else { shopId = 'SHOP001'; localStorage.setItem('shopId', shopId); }
+    }
+  }catch(e){ shopId = 'SHOP001'; }
+  setStatus('Shop ID: '+shopId,'secondary');
+  startInventoryListener();
+  startOrdersListener();
+});
+
+/* ============================
+   LOGOUT & CLEANUP
+============================ */
+function logout(){ auth.signOut().finally(()=>{ try{ localStorage.removeItem('shopId'); }catch(e){} window.location.href='index.html'; }); }
+
+window.addEventListener('beforeunload', ()=> {
+  try{ if(inventoryUnsub) inventoryUnsub(); if(ordersUnsub) ordersUnsub(); }catch(e){}
+});
+
+/* ============================
+   END OF SCRIPT
+============================ */
+</script>
 </body>
 </html>
+````0
+    
